@@ -1,281 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sefi Roee - Projects</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .hero {
+            padding: 4rem 0 3rem;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        .projects {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem;
+        }
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .project-card h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .project-card p {
+            color: #555;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .project-card .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .project-card .btn:hover {
+            opacity: 0.9;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .tech-badge {
+            background: #f0f0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        footer {
+            text-align: center;
+            color: white;
+            padding: 2rem 0;
+            opacity: 0.8;
+        }
+    </style>
 </head>
+<body>
+    <div class="hero">
+        <h1>Sefi Roee</h1>
+        <p>Web Developer & Optimizer Enthusiast</p>
+    </div>
 
-<link href="style.css" rel="stylesheet" media="all">
+    <div class="projects">
+        <div class="project-card">
+            <h2>🎮 Evony Card Compose Optimizer</h2>
+            <p>
+                A sophisticated web application for optimizing card composing strategies in Evony's Lucky Composing event. 
+                Enter your card inventory, assign rankings to outcomes, and get optimal compose recommendations using 
+                advanced LP relaxation with local search algorithms.
+            </p>
+            <div class="tech-stack">
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">Linear Programming</span>
+                <span class="tech-badge">Bootstrap 5</span>
+                <span class="tech-badge">Chart.js</span>
+                <span class="tech-badge">Optimization Algorithms</span>
+            </div>
+            <a href="evony/" class="btn btn-primary mt-3">Open Optimizer →</a>
+        </div>
 
-<div class="wrapper">
-<!-- SCORE BOX -->
-<div class="scoreTwoBox">
-	<div class="quesNum">
-		<span id="quesLine">Question <span id="quesTarget">1</span>/10</span>
-	</div>
-	<div class="scoreTwo">
-		Score: <span id="counterTarget">0</span>
-	</div>
-	<div class="clear"></div>
-</div>
-<!-- END SCORE BOX -->
-<!--START QUESTION  1-->
-<div class="questionContainer">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">What is 3 plus 2?</div>
-<div class="answers">
-<div class="ans"><label><input id="wrong" class="1" type="radio">1</label></div>
-<div class="ans"><label><input id="correct" class="5" type="radio">5</label></div>
-<div class="ans"><label><input id="wrong" class="100" type="radio">100</label></div>
-<div class="ans"><label><input id="wrong" class="2000" type="radio">2000</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide">
-<span class="correctAns">That is right!</span>
-<p>You know your addition</p>
-</div>
-<div class="wrongAnswer hide">
-<span class="wrongAns">That's not it.</span>
-<p>3 plus 2 is equal to 5.</p>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a style="display: none;" class="btn btn-simple gutter-bottom-fixed-1 nxtQues hide">Next Question&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="images/one.jpg">
-</div>
-<!-- END QUESTION -->
-<!--START QUESTION  2-->
-<div class="questionContainer hide">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">What is Michael Jordan's first name?</div>
-<div class="answers">
-<div class="ans"><label><input id="correct" class="Michael" type="radio">Michael</label></div>
-<div class="ans"><label><input id="wrong" class="Tom" type="radio">Tom</label></div>
-<div class="ans"><label><input id="wrong" class="Tim" type="radio">Tim</label></div>
-<div class="ans"><label><input id="wrong" class="Terry" type="radio">Terry</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide">
-<span class="correctAns">You got it!</span>
-<p>His name is Michael.</p>
-</div>
-<div class="wrongAnswer hide">
-<span class="wrongAns">Actually, it is Michael.</span>
-<p>You chose the wrong name.</p>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a style="display: none;" class="btn btn-simple gutter-bottom-fixed-1 nxtQues hide">Next Question&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="images/two.jpg">
-</div>
-<!-- END QUESTION -->
-<!--START QUESTION  3 -->
-<div class="questionContainer hide">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">Where is the weather warm in the winter time?</div>
-<div class="answers">
-<div class="ans"><label><input id="wrong" class="Florida" type="radio">Florida</label></div>
-<div class="ans"><label><input id="correct" class="New York" type="radio">New York</label></div>
-<div class="ans"><label><input id="wrong" class="Pennsylvania" type="radio">Pennsylvania</label></div>
-<div class="ans"><label><input id="wrong" class="Ohio" type="radio">Ohio</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide">
-<span class="correctAns">That’s right, Florida!</span>
-<p>It is warm in Florida during the winter.</p>
-</div>
-<div class="wrongAnswer hide">
-<span class="wrongAns">Nope.</span>
-<p>It is cold in that state during winter.</p>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a style="display: none;" class="btn btn-simple gutter-bottom-fixed-1 nxtQues hide">Next Question&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="images/three.jpg">
-</div>
-<!-- END QUESTION -->
-<!--START QUESTION  4 -->
-<div class="questionContainer hide">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">Is a Banana yellow?</div>
-<div class="answers">
-<div class="ans"><label><input id="correct" class="Yes" type="radio">Yes</label></div>
-<div class="ans"><label><input id="wrong" class="No" type="radio">No</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide">
-<span class="correctAns">Yes, you are correct!</span>
-<p>Bananas are yellow! You know your stuff!</p>
-</div>
-<div class="wrongAnswer hide">
-<span class="wrongAns">Yes, it can!</span>
-<p>You need to go to the store and check out the Bananas.</p>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a style="display: none;" class="btn btn-simple gutter-bottom-fixed-1 nxtQues hide">Next Question&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="images/four.jpg">
-</div>
-<!-- END QUESTION -->
-<!--START QUESTION  5 -->
-<div class="questionContainer hide">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">How often does a Tuesday come around?</div>
-<div class="answers">
-<div class="ans"><label><input id="wrong" class="Every day" type="radio">Every month</label></div>
-<div class="ans"><label><input id="wrong" class="Every hour" type="radio">Every year</label></div>
-<div class="ans"><label><input id="wrong" class="Every 20 minute" type="radio">Every 20 years</label></div>
-<div class="ans"><label><input id="correct" class="Every 4 minutes" type="radio">Every week</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide">
-<span class="correctAns">That's right!</span>
-<p>Every week there is another Tuesday.</p>
-</div>
-<div class="wrongAnswer hide">
-<span class="wrongAns">Faster than that.</span>
-<p>Every week there is another Tuesday.</p>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a style="display: none;" class="btn btn-simple gutter-bottom-fixed-1 nxtQues hide">Next Question&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="images/five.jpg">
-</div>
-<!-- END QUESTION -->
-<!-- BONUS QUESTION -->
-<div class="questionContainer hide">
-<div class="row">
-<div class="span7">
-<div class="whites hide">
-<div class="question gutter-horiz-in gutter-top-in">This is a bonus question. Do you like blue jeans?</div>
-<div class="answers">
-<div class="ans"><label><input id="bonus" class="Yes" type="radio">Yes</label></div>
-<div class="ans"><label><input id="noBonus" class="Not yet" type="radio">Not yet</label></div>
-<div class="ans"><label><input id="midBonus" class="No I am a renter" type="radio">No, I am undecided.</label></div>
-</div>
-<div class="btnContainer">
-<div class="next">
-<a class="btn btn-simple gutter-bottom-fixed-1 btnNext btnLst">Submit Answer&nbsp; &gt;</a>
-</div>
-<div class="clear"></div>
-</div>
-</div>
-<div class="answerContainer hide">
-<div class="rightAnswer hide gutter-horiz-in">
-<span class="finalAns scoreTxt">Well done</span>
-Glad to hear that you like blue jeans. Not many people don't.
-<br><br><a class="btn btn-simple gutter-bottom-fixed-1" href="/what-else-can-i-do" target=" _blank" >Call to action</a>
-</div>
-<div class="wrongAnswer hide gutter-horiz-in">
-<span class="finalAns scoreTxt">Well done</span>
-Even if you don't like blue jeans now, you might come around once you know how comfortable they are.
-<br><br><a class="btn btn-simple gutter-bottom-fixed-1" href="/what-else-can-i-do" target=" _blank">Call to action</a>
-</div>
-<div class="midAnswer hide gutter-horiz-in">
-<span class="finalAns scoreTxt">Well done</span>
-It is weird that you don't like blue jeans. We will not be friends.
-<br><br><a class="btn btn-simple gutter-bottom-fixed-1" href="/what-else-can-i-do" target=" _blank" >Call to action</a>
-</div>
-<!--Social Links-->
-<div class="socialBlock gutter-horiz-in">
-<p>Have your friends and family take the quiz to test their knowledge!<br>
-<a href="http://www.facebook.com" target="_blank">Facebook</a>
-<a href="http://www.twitter.com" target="_blank">Twitter</a>
-<a href="http://www.facebook.com" target="_blank">GooglePlus</a>
-</p>
-</div>
-<!-- END NEW LINKS -->
-</div><!-- END answerContainer -->
-</div>
-<div class="span4"></div>
-</div>
-<img src="/images/correct.jpg">
-</div>
-<!-- END QUESTION -->
-<!-- END QUIZ -->
-</div> <!-- END HEIGHT BLOCK -->
+        <!-- Add more project cards here as you build them -->
+        <div class="project-card" style="opacity: 0.6;">
+            <h2>🚧 More Projects Coming Soon...</h2>
+            <p>Stay tuned for more tools and applications!</p>
+        </div>
+    </div>
 
-<!--[if lte IE 8]><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script><![endif]-->
-	<!--[if gt IE 8]><!--><script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--<![endif]-->
-	<script src="quiz.js"></script>
-
+    <footer>
+        <p>© 2026 Sefi Roee | Built with ❤️ and Code</p>
+    </footer>
 </body>
 </html>

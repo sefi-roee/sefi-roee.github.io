@@ -92,3 +92,10 @@ ul {
 .recipe-value {
     margin-left: auto;
 }
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+.gap-2 {
+    gap: 0.5rem !important;
+}

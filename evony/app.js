@@ -28,6 +28,24 @@ let cards = null;
 let recipes = null;
 let configLoaded = false;
 
+// Preset rank configurations
+const rankPresets = {
+    'Minimal Residual': [0.9, 0.95, 0.95, 1, 1, 0.95, 0.95, 1, 0.95, 1.2],
+    'High Value Focus': [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10],
+    'Box X Priority': [0.5, 0.5, 0.5, 1, 1, 1, 2, 3, 5, 10],
+    'Mid-Tier (VI-VIII)': [0.5, 0.5, 1, 1.5, 2, 3, 3, 3, 2, 1],
+    'Balanced': [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 3],
+};
+
+function applyRankPreset(presetName) {
+    if (!rankPresets[presetName]) return;
+    const values = rankPresets[presetName];
+    for (let i = 0; i < recipes.length && i < values.length; ++i) {
+        recipes[i].value = values[i];
+    }
+    renderApp();
+}
+
 function loadConfigAndInit() {
     fetch('evony-config.json')
         .then(r => r.json())
@@ -150,6 +168,20 @@ function renderRecipeInput() {
         });
         div.appendChild(row);
     });
+    
+    // Add preset buttons
+    const presetsDiv = document.createElement('div');
+    presetsDiv.className = 'mb-3 d-flex flex-wrap gap-2';
+    presetsDiv.innerHTML = '<small class="w-100 text-muted mb-1">Quick Presets:</small>';
+    Object.keys(rankPresets).forEach(presetName => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-outline-secondary';
+        btn.textContent = presetName;
+        btn.onclick = () => applyRankPreset(presetName);
+        presetsDiv.appendChild(btn);
+    });
+    div.appendChild(presetsDiv);
+    
     return div;
 }
 

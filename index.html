@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sefi Roee - Projects</title>
+    <title>Sefi Roee - Portfolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -12,18 +13,66 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         .hero {
-            padding: 4rem 0 3rem;
+            padding: 3rem 0 2rem;
             text-align: center;
             color: white;
         }
+        .profile-photo {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 0 auto 1.5rem;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
         .hero h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .social-links a {
+            color: white;
+            font-size: 1.8rem;
+            transition: transform 0.3s, opacity 0.3s;
+            opacity: 0.9;
+        }
+        .social-links a:hover {
+            transform: translateY(-3px);
+            opacity: 1;
+        }
+        .about-section {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            padding: 0 1rem;
+        }
+        .about-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+        }
+        .about-card h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .about-card p {
+            color: #555;
+            line-height: 1.6;
         }
         .projects {
             max-width: 1100px;
@@ -86,32 +135,31 @@
 </head>
 <body>
     <div class="hero">
+        <img src="profile.jpg" alt="Sefi Roee" class="profile-photo" id="profilePhoto">
         <h1>Sefi Roee</h1>
-        <p>Web Developer & Optimizer Enthusiast</p>
+        <p>Web Developer & Problem Solver</p>
+        
+        <div class="social-links">
+            <a href="https://github.com/sefi-roee" target="_blank" title="GitHub">
+                <i class="bi bi-github"></i>
+            </a>
+            <a href="https://linkedin.com/in/sefi-roee" target="_blank" title="LinkedIn">
+                <i class="bi bi-linkedin"></i>
+            </a>
+            <a href="mailto:your.email@example.com" title="Email">
+                <i class="bi bi-envelope-fill"></i>
+            </a>
+        </div>
     </div>
 
-    <div class="projects">
-        <div class="project-card">
-            <h2>🎮 Evony Card Compose Optimizer</h2>
+    <div class="about-section">
+        <div class="about-card">
+            <h2>About Me</h2>
             <p>
-                A sophisticated web application for optimizing card composing strategies in Evony's Lucky Composing event. 
-                Enter your card inventory, assign rankings to outcomes, and get optimal compose recommendations using 
-                advanced LP relaxation with local search algorithms.
+                I'm a passionate developer who loves building tools and solving complex problems. 
+                I specialize in creating efficient web applications with a focus on optimization algorithms 
+                and user experience. Always exploring new technologies and methodologies to improve my craft.
             </p>
-            <div class="tech-stack">
-                <span class="tech-badge">JavaScript</span>
-                <span class="tech-badge">Linear Programming</span>
-                <span class="tech-badge">Bootstrap 5</span>
-                <span class="tech-badge">Chart.js</span>
-                <span class="tech-badge">Optimization Algorithms</span>
-            </div>
-            <a href="evony/" class="btn btn-primary mt-3">Open Optimizer →</a>
-        </div>
-
-        <!-- Add more project cards here as you build them -->
-        <div class="project-card" style="opacity: 0.6;">
-            <h2>🚧 More Projects Coming Soon...</h2>
-            <p>Stay tuned for more tools and applications!</p>
         </div>
     </div>
 

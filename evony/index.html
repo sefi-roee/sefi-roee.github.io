@@ -3,26 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evony Card Compose Optimizer</title>
+    <title>Evony Tools - Sefi Roee</title>
+    <script>
+        if (location.protocol.startsWith("http") && !location.pathname.endsWith("/") && !location.pathname.endsWith(".html")) {
+            location.replace(location.pathname + "/" + location.search + location.hash);
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 2rem 0;
+        }
+        .container {
+            max-width: 900px;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .tool-card h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .tool-card p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .tool-card .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 6px;
+            transition: opacity 0.3s;
+        }
+        .tool-card .btn:hover {
+            opacity: 0.9;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        .back-link a:hover {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-    <div class="container py-2">
-        <h1 class="mb-3 text-center">Evony Card Compose Optimizer</h1>
-        <div id="progress-bar-container" style="display:none;">
-            <div class="progress mb-3">
-                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
-            </div>
+    <div class="container">
+        <h1>🎮 Evony Tools & Calculators</h1>
+        
+        <div class="tool-card">
+            <h2>Card Compose Optimizer</h2>
+            <p>
+                Optimize your card composing strategy for Evony's Lucky Composing event. 
+                Enter your card inventory (Green, Blue, Purple, Orange, Red), assign custom rankings 
+                to Lucky Box outcomes (I-X), and get optimal compose recommendations using advanced 
+                LP relaxation with local search algorithms.
+            </p>
+            <a href="card-optimizer/" class="btn">Open Card Optimizer →</a>
         </div>
-        <div id="main-flex" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: flex-start;">
-            <div id="card-col" style="flex: 1 1 220px; min-width: 200px; max-width: 260px;"></div>
-            <div id="recipe-col" style="flex: 2 1 340px; min-width: 260px; max-width: 420px;"></div>
-            <div id="result-col" style="flex: 2 1 340px; min-width: 260px; max-width: 420px;"></div>
+
+        <div class="tool-card">
+            <h2>Giant's Wisdom Temple Optimizer</h2>
+            <p>
+                Interactive planning tool for the 4-level temple grid event. Configure each level's grid
+                size and hidden piece dimensions, mark hits/misses as you play, and get next-click
+                recommendations from multiple optimization strategies.
+            </p>
+            <a href="wisdom-temple/" class="btn">Open Wisdom Temple Tool →</a>
+        </div>
+
+        <div class="tool-card" style="opacity: 0.6;">
+            <h2>🚧 More Evony Tools Coming Soon...</h2>
+            <p>Additional calculators and optimizers for other Evony events and features are in development.</p>
+        </div>
+
+        <div class="back-link">
+            <a href="../">← Back to Home</a>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/javascript-lp-solver/src/solver.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>

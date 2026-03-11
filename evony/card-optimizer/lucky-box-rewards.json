@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "description": "Lucky Box rewards for Evony Card Compose Optimizer",
+    "probabilities": {
+      "1_reward": 0.60,
+      "2_rewards": 0.2667,
+      "3_rewards": 0.1333
+    },
+    "notes": "Each box has 5-8 possible rewards. When opened, you get 1, 2, or 3 rewards based on above probabilities."
+  },
+  "boxes": {
+    "box_i": {
+      "name": "Lucky Box I",
+      "rewards": [
+        {"reward": "8 hours resource gathering speed", "amount": 4},
+        {"reward": "Gems", "amount": 800},
+        {"reward": "Blue material chest", "amount": 16},
+        {"reward": "Speedup for construction (minutes)", "amount": 400},
+        {"reward": "Medium resource chest", "amount": 22},
+        {"reward": "Monarch EXP", "amount": 30000}
+      ]
+    },
+    "box_ii": {
+      "name": "Lucky Box II",
+      "rewards": [
+        {"reward": "Chips", "amount": 2500},
+        {"reward": "Blue material chest", "amount": 16},
+        {"reward": "Gold", "amount": 500000},
+        {"reward": "Speedup for researching (minutes)", "amount": 380},
+        {"reward": "Medium resource chest", "amount": 22},
+        {"reward": "Monarch EXP", "amount": 30000}
+      ]
+    },
+    "box_iii": {
+      "name": "Lucky Box III",
+      "rewards": [
+        {"reward": "Refining stone", "amount": 100},
+        {"reward": "Ore", "amount": 1000000},
+        {"reward": "Intermediate material chest", "amount": 20},
+        {"reward": "Speedup for crafting (minutes)", "amount": 320},
+        {"reward": "Gems", "amount": 800},
+        {"reward": "Monarch EXP", "amount": 30000}
+      ]
+    },
+    "box_iv": {
+      "name": "Lucky Box IV",
+      "rewards": [
+        {"reward": "Stamina", "amount": 50},
+        {"reward": "Speedup for construction (minutes)", "amount": 1080},
+        {"reward": "1 hour attack increase", "amount": 3},
+        {"reward": "Medium resource chest", "amount": 58},
+        {"reward": "Gold", "amount": 850000},
+        {"reward": "Monarch EXP", "amount": 20000}
+      ]
+    },
+    "box_v": {
+      "name": "Lucky Box V",
+      "rewards": [
+        {"reward": "Speedup (minutes)", "amount": 300},
+        {"reward": "Food", "amount": 900000},
+        {"reward": "Intermediate material chest", "amount": 16},
+        {"reward": "Speedup for researching (minutes)", "amount": 660},
+        {"reward": "Medium resource chest", "amount": 22},
+        {"reward": "Monarch EXP", "amount": 30000}
+      ]
+    },
+    "box_vi": {
+      "name": "Lucky Box VI",
+      "rewards": [
+        {"reward": "Senior resource chest", "amount": 28},
+        {"reward": "Speedup for construction (minutes)", "amount": 1320},
+        {"reward": "Food", "amount": 3500000},
+        {"reward": "Monarch EXP", "amount": 36000},
+        {"reward": "Blue material chest", "amount": 30},
+        {"reward": "General EXP", "amount": 70000}
+      ]
+    },
+    "box_vii": {
+      "name": "Lucky Box VII",
+      "rewards": [
+        {"reward": "Adv city teleporter", "amount": 4},
+        {"reward": "Speedup for researching (minutes)", "amount": 660},
+        {"reward": "General EXP", "amount": 48000},
+        {"reward": "Medium resource chest", "amount": 28},
+        {"reward": "Intermediate material chest", "amount": 25},
+        {"reward": "General EXP", "amount": 80000}
+      ]
+    },
+    "box_viii": {
+      "name": "Lucky Box VIII",
+      "rewards": [
+        {"reward": "Speedup (minutes)", "amount": 1320},
+        {"reward": "Blue material chest", "amount": 20},
+        {"reward": "Chips", "amount": 2500},
+        {"reward": "Food", "amount": 1400000},
+        {"reward": "Speedup for construction (minutes)", "amount": 660},
+        {"reward": "General EXP", "amount": 70000}
+      ]
+    },
+    "box_ix": {
+      "name": "Lucky Box IX",
+      "rewards": [
+        {"reward": "Stamina", "amount": 100},
+        {"reward": "Adv city teleporter", "amount": 4},
+        {"reward": "Speedup (minutes)", "amount": 1320},
+        {"reward": "Stone", "amount": 3000000},
+        {"reward": "Food", "amount": 3000000},
+        {"reward": "General EXP", "amount": 75000}
+      ]
+    },
+    "box_x": {
+      "name": "Lucky Box X",
+      "rewards": [
+        {"reward": "Gold", "amount": 2000000},
+        {"reward": "24 hour truce agreement", "amount": 3},
+        {"reward": "Speedup", "amount": 1800},
+        {"reward": "Ore", "amount": 3000000},
+        {"reward": "Lumber", "amount": 3000000},
+        {"reward": "General EXP", "amount": 80000}
+      ]
+    }
+  }
+}

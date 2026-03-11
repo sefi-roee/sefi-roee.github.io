@@ -1,6 +1,5 @@
 // Evony Card Compose Optimizer - Core Logic & UI
 
-// Example card and recipe data (can be replaced by user input)
 const defaultCards = [
     { name: 'Green', img: 'https://www.evonytkrguide.com/img/items/green_lucky_composing_gift_card.jpg', count: 0 },
     { name: 'Blue', img: 'https://www.evonytkrguide.com/img/items/blue_lucky_composing_gift_card.jpg', count: 0 },
@@ -10,113 +9,441 @@ const defaultCards = [
 ];
 
 const defaultRecipes = [
-    { name: 'Compose I',   cards: { 'Green': 1, 'Blue': 1, 'Purple': 1 }, outcome: 'Lucky Box I', value: 10 },
-    { name: 'Compose II',  cards: { 'Green': 1, 'Blue': 1, 'Orange': 1 }, outcome: 'Lucky Box II', value: 12 },
-    { name: 'Compose III', cards: { 'Green': 1, 'Blue': 1, 'Red': 1 }, outcome: 'Lucky Box III', value: 14 },
-    { name: 'Compose IV',  cards: { 'Green': 1, 'Purple': 1, 'Orange': 1 }, outcome: 'Lucky Box IV', value: 16 },
-    { name: 'Compose V',   cards: { 'Green': 1, 'Purple': 1, 'Red': 1 }, outcome: 'Lucky Box V', value: 18 },
-    { name: 'Compose VI',  cards: { 'Blue': 1, 'Purple': 1, 'Red': 1 }, outcome: 'Lucky Box VI', value: 20 },
-    { name: 'Compose VII', cards: { 'Blue': 1, 'Purple': 1, 'Orange': 1 }, outcome: 'Lucky Box VII', value: 22 },
-    { name: 'Compose VIII',cards: { 'Green': 1, 'Orange': 1, 'Red': 1 }, outcome: 'Lucky Box VIII', value: 24 },
-    { name: 'Compose IX',  cards: { 'Blue': 1, 'Orange': 1, 'Red': 1 }, outcome: 'Lucky Box IX', value: 26 },
-    { name: 'Compose X',   cards: { 'Purple': 1, 'Orange': 1, 'Red': 1 }, outcome: 'Lucky Box X', value: 28 },
+    { name: 'Compose I', cards: { Green: 1, Blue: 1, Purple: 1 }, outcome: 'Lucky Box I', value: 10 },
+    { name: 'Compose II', cards: { Green: 1, Blue: 1, Orange: 1 }, outcome: 'Lucky Box II', value: 12 },
+    { name: 'Compose III', cards: { Green: 1, Blue: 1, Red: 1 }, outcome: 'Lucky Box III', value: 14 },
+    { name: 'Compose IV', cards: { Green: 1, Purple: 1, Orange: 1 }, outcome: 'Lucky Box IV', value: 16 },
+    { name: 'Compose V', cards: { Green: 1, Purple: 1, Red: 1 }, outcome: 'Lucky Box V', value: 18 },
+    { name: 'Compose VI', cards: { Blue: 1, Purple: 1, Red: 1 }, outcome: 'Lucky Box VI', value: 20 },
+    { name: 'Compose VII', cards: { Blue: 1, Purple: 1, Orange: 1 }, outcome: 'Lucky Box VII', value: 22 },
+    { name: 'Compose VIII', cards: { Green: 1, Orange: 1, Red: 1 }, outcome: 'Lucky Box VIII', value: 24 },
+    { name: 'Compose IX', cards: { Blue: 1, Orange: 1, Red: 1 }, outcome: 'Lucky Box IX', value: 26 },
+    { name: 'Compose X', cards: { Purple: 1, Orange: 1, Red: 1 }, outcome: 'Lucky Box X', value: 28 },
 ];
 
+const defaultRewardConfig = {
+    metadata: {
+        probabilities: {
+            '1_reward': 0.60,
+            '2_rewards': 0.2667,
+            '3_rewards': 0.1333,
+        },
+    },
+    boxes: {},
+};
 
+const objectiveModes = {
+    manual: 'manual',
+    rewards: 'rewards',
+};
 
-let cards = null;
-let recipes = null;
-let configLoaded = false;
-
-// Preset rank configurations
 const rankPresets = {
     'Minimal Residual': [0.9, 0.95, 0.95, 1, 1, 0.95, 0.95, 1, 0.95, 1.2],
     'High Value Focus': [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10],
     'Box X Priority': [0.5, 0.5, 0.5, 1, 1, 1, 2, 3, 5, 10],
     'Mid-Tier (VI-VIII)': [0.5, 0.5, 1, 1.5, 2, 3, 3, 3, 2, 1],
-    'Balanced': [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 3],
+    Balanced: [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 3],
 };
 
-function applyRankPreset(presetName) {
-    if (!rankPresets[presetName]) return;
-    const values = rankPresets[presetName];
-    for (let i = 0; i < recipes.length && i < values.length; ++i) {
-        recipes[i].value = values[i];
+const rewardPresetDefinitions = [
+    {
+        key: 'all',
+        label: 'All Rewards',
+        description: 'Enable everything with balanced weight',
+        getWeight: () => 1,
+    },
+    {
+        key: 'rss',
+        label: 'RSS Focus',
+        description: 'Prioritize resources and resource chests',
+        getWeight: name => {
+            const n = normalizeRewardName(name);
+            if (n.includes('food') || n.includes('ore') || n.includes('stone') || n.includes('lumber') || n.includes('gold')) return 2.2;
+            if (n.includes('resource chest')) return 2.4;
+            if (n.includes('chips')) return 1.4;
+            return 0;
+        },
+    },
+    {
+        key: 'stamina',
+        label: 'Stamina/Hunting',
+        description: 'Prioritize stamina and hunt utility',
+        getWeight: name => {
+            const n = normalizeRewardName(name);
+            if (n.includes('stamina')) return 3.0;
+            if (n.includes('teleporter')) return 1.8;
+            if (n.includes('speedup')) return 1.2;
+            if (n.includes('gathering speed')) return 1.5;
+            return 0;
+        },
+    },
+    {
+        key: 'speedups',
+        label: 'Speedups',
+        description: 'Prioritize all speedups and time reducers',
+        getWeight: name => {
+            const n = normalizeRewardName(name);
+            if (n.includes('speedup') || n.includes('gathering speed')) return 2.6;
+            return 0;
+        },
+    },
+    {
+        key: 'war',
+        label: 'PvP/War',
+        description: 'Prioritize combat utility rewards',
+        getWeight: name => {
+            const n = normalizeRewardName(name);
+            if (n.includes('attack increase')) return 2.6;
+            if (n.includes('truce')) return 2.8;
+            if (n.includes('teleporter')) return 2.4;
+            if (n.includes('stamina')) return 1.4;
+            return 0;
+        },
+    },
+    {
+        key: 'growth',
+        label: 'Growth/EXP',
+        description: 'Prioritize EXP, materials, refining, chips',
+        getWeight: name => {
+            const n = normalizeRewardName(name);
+            if (n.includes('exp')) return 2.2;
+            if (n.includes('material chest')) return 2.0;
+            if (n.includes('refining stone')) return 2.2;
+            if (n.includes('chips')) return 1.9;
+            return 0;
+        },
+    },
+];
+
+let cards = null;
+let recipes = null;
+let luckyBoxRewards = defaultRewardConfig;
+let rewardWeights = {};
+let rewardEnabled = {};
+let rewardReferenceAmounts = {};
+let activeRewardPresetKey = null;
+let objectiveMode = objectiveModes.rewards;
+let configLoaded = false;
+let optimizeResult = null;
+
+function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function loadJson(path) {
+    return fetch(path, { cache: 'no-store' }).then(response => {
+        if (!response.ok) {
+            throw new Error(`Failed to load ${path}`);
+        }
+        return response.json();
+    });
+}
+
+function makeDomId(prefix, value) {
+    return `${prefix}-${String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+}
+
+function formatAmount(value) {
+    return Number(value).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    });
+}
+
+function isSpeedupReward(rewardName) {
+    return normalizeRewardName(rewardName).includes('speedup');
+}
+
+function isRssReward(rewardName) {
+    const name = normalizeRewardName(rewardName);
+    return name.includes('food') || name.includes('lumber') || name.includes('ore') || name.includes('stone');
+}
+
+function isGoldReward(rewardName) {
+    return normalizeRewardName(rewardName).includes('gold');
+}
+
+function isExpReward(rewardName) {
+    const name = normalizeRewardName(rewardName);
+    return name.includes('general exp') || name.includes('monarch exp');
+}
+
+function formatMillions(value) {
+    return `${(Number(value) / 1000000).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    })}M`;
+}
+
+function formatRewardAmount(rewardName, amount) {
+    if (isRssReward(rewardName) || isGoldReward(rewardName) || isExpReward(rewardName)) {
+        return formatMillions(amount);
     }
+    return formatAmount(amount);
+}
+
+function formatMinutesAsDays(minutes) {
+    const days = Number(minutes) / (60 * 24);
+    return Number(days).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    });
+}
+
+function normalizeRewardName(name) {
+    return String(name || '').toLowerCase();
+}
+
+function applyRewardPreset(presetKey) {
+    const preset = rewardPresetDefinitions.find(item => item.key === presetKey);
+    if (!preset) {
+        return;
+    }
+
+    Object.keys(rewardWeights).forEach(rewardName => {
+        const weight = Number(preset.getWeight(rewardName)) || 0;
+        rewardEnabled[rewardName] = weight > 0;
+        rewardWeights[rewardName] = weight > 0 ? weight : 1;
+    });
+
+    activeRewardPresetKey = presetKey;
+
+    renderApp();
+}
+
+function applyRankPreset(presetName) {
+    if (!rankPresets[presetName]) {
+        return;
+    }
+
+    const values = rankPresets[presetName];
+    for (let index = 0; index < recipes.length && index < values.length; index += 1) {
+        recipes[index].value = values[index];
+    }
+
     renderApp();
 }
 
 function loadConfigAndInit() {
-    fetch('evony-config.json')
-        .then(r => r.json())
-        .then(cfg => {
-            cards = JSON.parse(JSON.stringify(defaultCards));
-            recipes = JSON.parse(JSON.stringify(defaultRecipes));
-            if (cfg.defaultCardCounts && cfg.defaultCardCounts.length === cards.length) {
-                for (let i = 0; i < cards.length; ++i) cards[i].count = cfg.defaultCardCounts[i];
+    Promise.allSettled([
+        loadJson('evony-config.json'),
+        loadJson('lucky-box-rewards.json'),
+    ]).then(([configResult, rewardsResult]) => {
+        const config = configResult.status === 'fulfilled' ? configResult.value : null;
+        const rewardsConfig = rewardsResult.status === 'fulfilled' ? rewardsResult.value : null;
+
+        cards = clone(defaultCards);
+        recipes = clone(defaultRecipes);
+        luckyBoxRewards = rewardsConfig && rewardsConfig.boxes ? rewardsConfig : clone(defaultRewardConfig);
+
+        if (config && Array.isArray(config.defaultCardCounts) && config.defaultCardCounts.length === cards.length) {
+            for (let index = 0; index < cards.length; index += 1) {
+                cards[index].count = config.defaultCardCounts[index];
             }
-            if (cfg.defaultRecipeValues && cfg.defaultRecipeValues.length === recipes.length) {
-                for (let i = 0; i < recipes.length; ++i) recipes[i].value = cfg.defaultRecipeValues[i];
+        }
+
+        if (config && Array.isArray(config.defaultRecipeValues) && config.defaultRecipeValues.length === recipes.length) {
+            for (let index = 0; index < recipes.length; index += 1) {
+                recipes[index].value = config.defaultRecipeValues[index];
             }
-            configLoaded = true;
-            renderApp();
-        })
-        .catch(() => {
-            cards = JSON.parse(JSON.stringify(defaultCards));
-            recipes = JSON.parse(JSON.stringify(defaultRecipes));
-            configLoaded = true;
-            renderApp();
+        }
+
+        initializeRewardWeights();
+        configLoaded = true;
+        renderApp();
+    });
+}
+
+function initializeRewardWeights() {
+    const nextWeights = {};
+    const nextEnabled = {};
+    const rewardAmounts = {};
+
+    Object.values(luckyBoxRewards.boxes || {}).forEach(box => {
+        (box.rewards || []).forEach(item => {
+            if (!item || !item.reward) {
+                return;
+            }
+
+            nextWeights[item.reward] = Object.prototype.hasOwnProperty.call(rewardWeights, item.reward)
+                ? rewardWeights[item.reward]
+                : 1;
+            nextEnabled[item.reward] = Object.prototype.hasOwnProperty.call(rewardEnabled, item.reward)
+                ? rewardEnabled[item.reward]
+                : true;
+
+            if (!rewardAmounts[item.reward]) {
+                rewardAmounts[item.reward] = [];
+            }
+            rewardAmounts[item.reward].push(Number(item.amount) || 0);
         });
+    });
+
+    rewardWeights = nextWeights;
+    rewardEnabled = nextEnabled;
+    rewardReferenceAmounts = buildRewardReferenceAmounts(rewardAmounts);
+}
+
+function buildRewardReferenceAmounts(rewardAmounts) {
+    const references = {};
+
+    Object.entries(rewardAmounts).forEach(([rewardName, amounts]) => {
+        const sorted = amounts
+            .filter(amount => amount > 0)
+            .sort((left, right) => left - right);
+
+        if (!sorted.length) {
+            references[rewardName] = 1;
+            return;
+        }
+
+        const middle = Math.floor(sorted.length / 2);
+        references[rewardName] = sorted.length % 2 === 0
+            ? (sorted[middle - 1] + sorted[middle]) / 2
+            : sorted[middle];
+    });
+
+    return references;
+}
+
+function getRewardReferenceAmount(rewardName) {
+    return rewardReferenceAmounts[rewardName] || 1;
+}
+
+function getNormalizedRewardAmount(rewardName, amount) {
+    return amount / getRewardReferenceAmount(rewardName);
+}
+
+function getOpeningProbabilities() {
+    const probabilities = luckyBoxRewards.metadata && luckyBoxRewards.metadata.probabilities;
+    if (!probabilities) {
+        return defaultRewardConfig.metadata.probabilities;
+    }
+
+    return {
+        '1_reward': Number(probabilities['1_reward']) || 0,
+        '2_rewards': Number(probabilities['2_rewards']) || 0,
+        '3_rewards': Number(probabilities['3_rewards']) || 0,
+    };
+}
+
+function getExpectedDrawCount() {
+    const probabilities = getOpeningProbabilities();
+    return probabilities['1_reward'] + (2 * probabilities['2_rewards']) + (3 * probabilities['3_rewards']);
+}
+
+function getBoxData(outcome) {
+    return Object.values(luckyBoxRewards.boxes || {}).find(box => box.name === outcome) || null;
+}
+
+function getExpectedRewardsForOutcome(outcome) {
+    const box = getBoxData(outcome);
+    if (!box || !Array.isArray(box.rewards) || box.rewards.length === 0) {
+        return [];
+    }
+
+    const expectedSelectionsPerReward = getExpectedDrawCount() / box.rewards.length;
+    const totals = new Map();
+
+    box.rewards.forEach(item => {
+        if (!item || !item.reward) {
+            return;
+        }
+
+        const amount = Number(item.amount) || 0;
+        totals.set(item.reward, (totals.get(item.reward) || 0) + (amount * expectedSelectionsPerReward));
+    });
+
+    return Array.from(totals.entries())
+        .map(([reward, amount]) => ({ reward, amount }))
+        .sort((left, right) => right.amount - left.amount || left.reward.localeCompare(right.reward));
+}
+
+function getRewardScoreForOutcome(outcome) {
+    return getExpectedRewardsForOutcome(outcome).reduce((total, item) => {
+        if (!rewardEnabled[item.reward]) {
+            return total;
+        }
+        return total + (getNormalizedRewardAmount(item.reward, item.amount) * (rewardWeights[item.reward] ?? 0));
+    }, 0);
+}
+
+function getRecipeObjectiveValue(recipe) {
+    return objectiveMode === objectiveModes.rewards
+        ? getRewardScoreForOutcome(recipe.outcome)
+        : recipe.value;
+}
+
+function getRewardSummaryText(outcome, multiplier = 1, limit = 3) {
+    const rewards = getExpectedRewardsForOutcome(outcome);
+    if (!rewards.length) {
+        return 'No reward data';
+    }
+
+    return rewards
+        .slice(0, limit)
+        .map(item => `${item.reward}: ${formatAmount(item.amount * multiplier)}`)
+        .join(' | ');
 }
 
 function renderApp() {
     if (!configLoaded) {
         const root = document.getElementById('app-root') || document.getElementById('main-flex');
-        if (root) root.innerHTML = '<div class="text-center text-muted">Loading configuration...</div>';
+        if (root) {
+            root.innerHTML = '<div class="text-center text-muted">Loading configuration...</div>';
+        }
         return;
     }
-    // New layout: 3 columns
+
     const cardCol = document.getElementById('card-col');
     const recipeCol = document.getElementById('recipe-col');
     const resultCol = document.getElementById('result-col');
+
     if (cardCol && recipeCol && resultCol) {
         cardCol.innerHTML = '';
         recipeCol.innerHTML = '';
         resultCol.innerHTML = '';
+
         cardCol.appendChild(renderCardInput());
-        cardCol.appendChild(renderOptimizeButton());
+        cardCol.appendChild(renderOptimizeControls());
+        cardCol.appendChild(renderRewardWeightsPanel());
         recipeCol.appendChild(renderRecipeInput());
         resultCol.appendChild(renderResults());
-    } else {
-        // fallback for old root
-        const root = document.getElementById('app-root');
-        if (root) {
-            root.innerHTML = '';
-            root.appendChild(renderCardInput());
-            root.appendChild(renderRecipeInput());
-            root.appendChild(renderOptimizeButton());
-            root.appendChild(renderResults());
-        }
+        return;
     }
+
+    const root = document.getElementById('app-root');
+    if (!root) {
+        return;
+    }
+
+    root.innerHTML = '';
+    root.appendChild(renderCardInput());
+    root.appendChild(renderOptimizeControls());
+    root.appendChild(renderRewardWeightsPanel());
+    root.appendChild(renderRecipeInput());
+    root.appendChild(renderResults());
 }
 
 function renderCardInput() {
     const div = document.createElement('div');
     div.className = 'mb-4';
-    div.innerHTML = `<h4>Card Inventory</h4>`;
-    cards.forEach((card, idx) => {
+    div.innerHTML = '<h4>Card Inventory</h4>';
+
+    cards.forEach((card, index) => {
         const row = document.createElement('div');
         row.className = 'compose-row';
         row.innerHTML = `
             <img src="${card.img || 'https://via.placeholder.com/48x64?text=' + card.name}" class="card-img" alt="${card.name}">
             <span class="me-2">${card.name}</span>
-            <input type="number" min="0" value="${card.count}" class="form-control form-control-sm w-25" id="card-count-${idx}">
+            <input type="number" min="0" value="${card.count}" class="form-control form-control-sm w-25" id="card-count-${index}">
         `;
-        row.querySelector('input').addEventListener('input', e => {
-            cards[idx].count = Math.max(0, parseInt(e.target.value) || 0);
+        row.querySelector('input').addEventListener('input', event => {
+            cards[index].count = Math.max(0, parseInt(event.target.value, 10) || 0);
         });
         div.appendChild(row);
     });
+
     return div;
 }
 
@@ -133,66 +460,91 @@ function getLuckyBoxImage(outcome) {
         'Lucky Box IX': 'https://www.evonytkrguide.com/img/items/lucky_box_ix_9.jpg',
         'Lucky Box X': 'https://www.evonytkrguide.com/img/items/lucky_box_x_10.jpg',
     };
+
     return map[outcome] || '';
 }
 
 function getCardImg(cardName) {
-    const card = defaultCards.find(c => c.name === cardName);
+    const card = defaultCards.find(item => item.name === cardName);
     return card ? card.img : '';
 }
 
 function renderRecipeInput() {
     const div = document.createElement('div');
     div.className = 'mb-4';
-    div.innerHTML = `<h4>Recipes & Ranking</h4>`;
-    recipes.forEach((recipe, idx) => {
+    div.innerHTML = '<h4>Recipes, Rewards & Ranking</h4>';
+
+    recipes.forEach((recipe, index) => {
         const row = document.createElement('div');
-        row.className = 'recipe-row';
-        const cardIcons = Object.entries(recipe.cards).map(([k, v]) =>
-            `<img src="${getCardImg(k)}" title="${k}" class="recipe-card-icon">`
-        ).join('+');
+        row.className = 'recipe-row recipe-row-stacked';
+        const cardIcons = Object.keys(recipe.cards)
+            .map(cardName => `<img src="${getCardImg(cardName)}" title="${cardName}" class="recipe-card-icon">`)
+            .join('+');
         const boxImg = getLuckyBoxImage(recipe.outcome);
+
         row.innerHTML = `
-            <div class="recipe-cards">${cardIcons}</div>
-            <div class="recipe-arrow">→</div>
-            <div class="recipe-outcome">
-                <img src="${boxImg}" title="${recipe.outcome}" class="recipe-box-icon">
-                <span>${recipe.outcome.replace('Lucky Box ', 'Box ')}</span>
+            <div class="recipe-row-main">
+                <div class="recipe-cards">${cardIcons}</div>
+                <div class="recipe-arrow">→</div>
+                <div class="recipe-outcome">
+                    <img src="${boxImg}" title="${recipe.outcome}" class="recipe-box-icon">
+                    <span>${recipe.outcome.replace('Lucky Box ', 'Box ')}</span>
+                </div>
+                <div class="recipe-value">
+                    <input type="number" min="0" step="0.1" value="${recipe.value}" class="form-control form-control-sm outcome-rank" id="recipe-value-${index}">
+                </div>
             </div>
-            <div class="recipe-value">
-                <input type="number" min="0" step="0.1" value="${recipe.value}" class="form-control form-control-sm outcome-rank" id="recipe-value-${idx}">
+            <div class="recipe-meta">
+                <span class="recipe-score">Reward Score: ${formatAmount(getRewardScoreForOutcome(recipe.outcome))}</span>
+                <span class="recipe-summary">Expected: ${getRewardSummaryText(recipe.outcome)}</span>
             </div>
         `;
-        row.querySelector('input').addEventListener('input', e => {
-            recipes[idx].value = Math.max(0, parseFloat(e.target.value) || 0);
+
+        row.querySelector('input').addEventListener('input', event => {
+            recipes[index].value = Math.max(0, parseFloat(event.target.value) || 0);
         });
+
         div.appendChild(row);
     });
-    
-    // Add preset buttons
+
     const presetsDiv = document.createElement('div');
     presetsDiv.className = 'mb-3 d-flex flex-wrap gap-2';
-    presetsDiv.innerHTML = '<small class="w-100 text-muted mb-1">Quick Presets:</small>';
+    presetsDiv.innerHTML = '<small class="w-100 text-muted mb-1">Manual rank presets:</small>';
     Object.keys(rankPresets).forEach(presetName => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-outline-secondary';
-        btn.textContent = presetName;
-        btn.onclick = () => applyRankPreset(presetName);
-        presetsDiv.appendChild(btn);
+        const button = document.createElement('button');
+        button.className = 'btn btn-sm btn-outline-secondary';
+        button.textContent = presetName;
+        button.onclick = () => applyRankPreset(presetName);
+        presetsDiv.appendChild(button);
     });
     div.appendChild(presetsDiv);
-    
+    div.appendChild(renderExpectedRewardsReference());
+
     return div;
 }
 
-function renderOptimizeButton() {
+function renderOptimizeControls() {
     const div = document.createElement('div');
-    div.className = 'mb-4 text-center';
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-primary btn-lg';
-    btn.textContent = 'Optimize Composes!';
-    btn.onclick = () => {
-        // Show progress bar and force browser to render it before computation
+    div.className = 'mb-4';
+    div.innerHTML = `
+        <h4>Optimization Goal</h4>
+        <label class="form-label small text-muted" for="objective-mode">Optimize by</label>
+        <select id="objective-mode" class="form-select form-select-sm mb-2">
+            <option value="rewards" ${objectiveMode === objectiveModes.rewards ? 'selected' : ''}>Weighted rewards</option>
+            <option value="manual" ${objectiveMode === objectiveModes.manual ? 'selected' : ''}>Manual box ranks</option>
+        </select>
+        <div class="small text-muted mb-2">Reward mode uses normalized units: each reward is divided by its median amount across the box data, then multiplied by your priority weight.</div>
+    `;
+
+    div.querySelector('select').addEventListener('change', event => {
+        objectiveMode = event.target.value;
+        renderApp();
+    });
+
+    const button = document.createElement('button');
+    button.className = 'btn btn-primary btn-lg w-100';
+    button.textContent = objectiveMode === objectiveModes.rewards ? 'Optimize for Rewards' : 'Optimize by Rank';
+    button.onclick = () => {
         const progressBarContainer = document.getElementById('progress-bar-container');
         const progressBar = document.getElementById('progress-bar');
         if (progressBarContainer && progressBar) {
@@ -200,6 +552,7 @@ function renderOptimizeButton() {
             progressBar.style.width = '0%';
             progressBar.textContent = '0%';
         }
+
         window.requestAnimationFrame(() => {
             setTimeout(() => {
                 optimizeComposes();
@@ -207,17 +560,110 @@ function renderOptimizeButton() {
             }, 10);
         });
     };
-    div.appendChild(btn);
+
+    div.appendChild(button);
     return div;
 }
 
-let optimizeResult = null;
+function renderRewardWeightsPanel() {
+    const div = document.createElement('div');
+    div.className = 'mb-4';
+    div.innerHTML = '<h4>Reward Priorities</h4><div class="small text-muted mb-2">Tick the rewards that matter to you. Only selected rewards affect reward-mode optimization. Priority applies to normalized reward units.</div>';
+
+    const presetDiv = document.createElement('div');
+    presetDiv.className = 'reward-preset-group mb-2';
+    presetDiv.innerHTML = '<small class="w-100 text-muted mb-1">Quick reward presets:</small>';
+    rewardPresetDefinitions.forEach(preset => {
+        const button = document.createElement('button');
+        button.className = preset.key === activeRewardPresetKey
+            ? 'btn btn-sm btn-primary reward-preset-active'
+            : 'btn btn-sm btn-outline-primary';
+        button.textContent = preset.label;
+        button.title = preset.description;
+        button.onclick = () => applyRewardPreset(preset.key);
+        presetDiv.appendChild(button);
+    });
+    div.appendChild(presetDiv);
+
+    const rewardNames = Object.keys(rewardWeights).sort((left, right) => left.localeCompare(right));
+    if (!rewardNames.length) {
+        div.innerHTML += '<p class="text-muted">No lucky box reward data loaded.</p>';
+        return div;
+    }
+
+    rewardNames.forEach(rewardName => {
+        const inputId = makeDomId('reward-weight', rewardName);
+        const checkboxId = makeDomId('reward-enabled', rewardName);
+        const referenceAmount = getRewardReferenceAmount(rewardName);
+        const row = document.createElement('div');
+        row.className = 'reward-weight-row';
+        row.innerHTML = `
+            <input type="checkbox" class="form-check-input reward-enable-input" id="${checkboxId}" ${rewardEnabled[rewardName] ? 'checked' : ''}>
+            <label class="reward-weight-label" for="${inputId}">
+                <span>${rewardName}</span>
+                <small class="reward-weight-note">1 normalized unit = ${formatAmount(referenceAmount)}</small>
+            </label>
+            <input type="number" min="0" step="0.01" value="${rewardWeights[rewardName]}" class="form-control form-control-sm reward-weight-input" id="${inputId}">
+        `;
+
+        const checkbox = row.querySelector('.reward-enable-input');
+        const numberInput = row.querySelector('.reward-weight-input');
+        numberInput.disabled = !rewardEnabled[rewardName];
+
+        checkbox.addEventListener('change', event => {
+            rewardEnabled[rewardName] = event.target.checked;
+            numberInput.disabled = !rewardEnabled[rewardName];
+            row.classList.toggle('reward-weight-row-disabled', !rewardEnabled[rewardName]);
+            activeRewardPresetKey = null;
+            renderApp();
+        });
+
+        numberInput.addEventListener('change', event => {
+            rewardWeights[rewardName] = Math.max(0, parseFloat(event.target.value) || 0);
+            activeRewardPresetKey = null;
+            renderApp();
+        });
+
+        row.classList.toggle('reward-weight-row-disabled', !rewardEnabled[rewardName]);
+
+        div.appendChild(row);
+    });
+
+    return div;
+}
+
+function renderExpectedRewardsReference() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'reward-reference';
+    wrapper.innerHTML = '<h5>Per Box Expected Rewards</h5>';
+
+    recipes.forEach(recipe => {
+        const rewards = getExpectedRewardsForOutcome(recipe.outcome);
+        const item = document.createElement('div');
+        item.className = 'reward-reference-item';
+        item.innerHTML = `
+            <div class="reward-reference-title">
+                <strong>${recipe.name}</strong>
+                <span>${recipe.outcome}</span>
+                <span class="reward-score">Score: ${formatAmount(getRewardScoreForOutcome(recipe.outcome))}</span>
+            </div>
+            <div class="reward-chip-list">
+                ${rewards.length
+                    ? rewards.map(entry => `<span class="reward-chip">${entry.reward}: ${formatRewardAmount(entry.reward, entry.amount)} (${formatAmount(getNormalizedRewardAmount(entry.reward, entry.amount))} norm)</span>`).join('')
+                    : '<span class="text-muted">No reward data</span>'}
+            </div>
+        `;
+        wrapper.appendChild(item);
+    });
+
+    return wrapper;
+}
 
 function optimizeComposes() {
-    const cardNames = cards.map(c => c.name);
-    const n = recipes.length;
+    const cardNames = cards.map(card => card.name);
+    const recipeCount = recipes.length;
+    const objectiveValues = recipes.map(recipe => getRecipeObjectiveValue(recipe));
 
-    // Progress bar setup
     const progressBarContainer = document.getElementById('progress-bar-container');
     const progressBar = document.getElementById('progress-bar');
     if (progressBarContainer && progressBar) {
@@ -226,49 +672,35 @@ function optimizeComposes() {
         progressBar.textContent = 'Solving...';
     }
 
-    // Build recipe needs matrix: needs[i][j] = how many of card j recipe i needs
-    const needs = [];
-    for (let i = 0; i < n; ++i) {
-        needs.push(cardNames.map(cn => recipes[i].cards[cn] || 0));
-    }
-
-    // Filter to active recipes (value > 0)
+    const needs = recipes.map(recipe => cardNames.map(cardName => recipe.cards[cardName] || 0));
     const active = [];
-    for (let i = 0; i < n; ++i) {
-        if (recipes[i].value > 0) active.push(i);
-    }
-
-    // For each card type, which active recipes use it?
-    const cardRecipes = cardNames.map((_, j) => active.filter(i => needs[i][j] > 0));
-
-    // Find the bottleneck card (smallest count)
-    let bottleneckIdx = 0;
-    let bottleneckCount = cards[0].count;
-    for (let j = 1; j < cardNames.length; ++j) {
-        if (cards[j].count < bottleneckCount) {
-            bottleneckCount = cards[j].count;
-            bottleneckIdx = j;
+    for (let index = 0; index < recipeCount; index += 1) {
+        if (objectiveValues[index] > 0) {
+            active.push(index);
         }
     }
 
-    // Strategy: Use LP to get initial solution, then do extensive local search
-    // with all swap types to handle float sensitivity
-
-    // Step 1: Solve LP relaxation with scaled values for better precision
     const scale = 10000;
     const model = { optimize: 'value', opType: 'max', constraints: {}, variables: {} };
-    for (const card of cards) {
+    cards.forEach(card => {
         model.constraints[card.name] = { max: card.count };
-    }
-    for (let i = 0; i < n; ++i) {
-        if (recipes[i].value <= 0) continue;
-        const varName = 'r' + i;
-        model.variables[varName] = { value: Math.round(recipes[i].value * scale) };
-        for (const cardName of cardNames) {
-            const need = recipes[i].cards[cardName] || 0;
-            if (need > 0) model.variables[varName][cardName] = need;
+    });
+
+    for (let recipeIndex = 0; recipeIndex < recipeCount; recipeIndex += 1) {
+        if (objectiveValues[recipeIndex] <= 0) {
+            continue;
         }
+
+        const variableName = 'r' + recipeIndex;
+        model.variables[variableName] = { value: Math.round(objectiveValues[recipeIndex] * scale) };
+        cardNames.forEach(cardName => {
+            const need = recipes[recipeIndex].cards[cardName] || 0;
+            if (need > 0) {
+                model.variables[variableName][cardName] = need;
+            }
+        });
     }
+
     const lpSolution = solver.Solve(model);
 
     if (progressBar) {
@@ -276,44 +708,41 @@ function optimizeComposes() {
         progressBar.textContent = 'Optimizing...';
     }
 
-    // Step 2: Build initial integer solution from LP floor
-    const used = new Array(n).fill(0);
-    const remaining = cards.map(c => c.count);
-    for (let i = 0; i < n; ++i) {
-        if (recipes[i].value <= 0) continue;
-        used[i] = Math.floor(lpSolution['r' + i] || 0);
-        for (let j = 0; j < cardNames.length; ++j) {
-            remaining[j] -= needs[i][j] * used[i];
+    const used = new Array(recipeCount).fill(0);
+    const remaining = cards.map(card => card.count);
+    for (let recipeIndex = 0; recipeIndex < recipeCount; recipeIndex += 1) {
+        if (objectiveValues[recipeIndex] <= 0) {
+            continue;
+        }
+
+        used[recipeIndex] = Math.floor(lpSolution['r' + recipeIndex] || 0);
+        for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+            remaining[cardIndex] -= needs[recipeIndex][cardIndex] * used[recipeIndex];
         }
     }
 
-    // Helper: check if we can add 1 of recipe i
-    function canAdd(i, rem) {
-        for (let j = 0; j < cardNames.length; ++j) {
-            if (needs[i][j] > 0 && rem[j] < needs[i][j]) return false;
+    function canAdd(recipeIndex, remainingCards) {
+        for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+            if (needs[recipeIndex][cardIndex] > 0 && remainingCards[cardIndex] < needs[recipeIndex][cardIndex]) {
+                return false;
+            }
         }
         return true;
     }
 
-    // Helper: compute total value
-    function totalValue(u) {
-        let v = 0;
-        for (let i = 0; i < n; ++i) v += u[i] * recipes[i].value;
-        return v;
-    }
-
-    // Step 3: Greedy fill (sorted by value/usage efficiency)
-    const recipeOrder = active.slice().sort((a, b) => recipes[b].value - recipes[a].value);
+    const recipeOrder = active.slice().sort((left, right) => objectiveValues[right] - objectiveValues[left]);
     let filling = true;
     while (filling) {
         filling = false;
-        for (const i of recipeOrder) {
-            while (canAdd(i, remaining)) {
-                used[i]++;
-                for (let j = 0; j < cardNames.length; ++j) remaining[j] -= needs[i][j];
+        recipeOrder.forEach(recipeIndex => {
+            while (canAdd(recipeIndex, remaining)) {
+                used[recipeIndex] += 1;
+                for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                    remaining[cardIndex] -= needs[recipeIndex][cardIndex];
+                }
                 filling = true;
             }
-        }
+        });
     }
 
     if (progressBar) {
@@ -321,175 +750,275 @@ function optimizeComposes() {
         progressBar.textContent = 'Local search...';
     }
 
-    // Step 4: Extensive local search with float-aware comparisons
-    const EPS = 1e-9;
-    let searchImproved = true;
-    let searchRound = 0;
-    while (searchImproved && searchRound < 100) {
-        searchImproved = false;
-        searchRound++;
+    const epsilon = 1e-9;
+    let improved = true;
+    let rounds = 0;
+    while (improved && rounds < 100) {
+        improved = false;
+        rounds += 1;
 
-        // 4a: 1-for-1 swap: remove 1 of lo, add 1 of hi
-        for (const hi of recipeOrder) {
-            for (const lo of active) {
-                if (lo === hi || used[lo] <= 0) continue;
-                if (recipes[hi].value <= recipes[lo].value + EPS) continue;
-                const tr = remaining.slice();
-                for (let j = 0; j < cardNames.length; ++j) tr[j] += needs[lo][j];
-                if (canAdd(hi, tr)) {
-                    for (let j = 0; j < cardNames.length; ++j) tr[j] -= needs[hi][j];
-                    used[lo]--;
-                    used[hi]++;
-                    for (let j = 0; j < cardNames.length; ++j) remaining[j] = tr[j];
-                    searchImproved = true;
+        for (const highRecipe of recipeOrder) {
+            for (const lowRecipe of active) {
+                if (lowRecipe === highRecipe || used[lowRecipe] <= 0) {
+                    continue;
                 }
+                if (objectiveValues[highRecipe] <= objectiveValues[lowRecipe] + epsilon) {
+                    continue;
+                }
+
+                const trialRemaining = remaining.slice();
+                for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                    trialRemaining[cardIndex] += needs[lowRecipe][cardIndex];
+                }
+
+                if (!canAdd(highRecipe, trialRemaining)) {
+                    continue;
+                }
+
+                for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                    trialRemaining[cardIndex] -= needs[highRecipe][cardIndex];
+                    remaining[cardIndex] = trialRemaining[cardIndex];
+                }
+                used[lowRecipe] -= 1;
+                used[highRecipe] += 1;
+                improved = true;
             }
         }
 
-        // 4b: 1-for-2 swap: remove 1, try to add 2 that give more value
-        for (const lo of active) {
-            if (used[lo] <= 0) continue;
-            const tr = remaining.slice();
-            for (let j = 0; j < cardNames.length; ++j) tr[j] += needs[lo][j];
-            // Try all pairs
-            for (let a = 0; a < active.length; ++a) {
-                const ra = active[a];
-                if (!canAdd(ra, tr)) continue;
-                const tr2 = tr.slice();
-                for (let j = 0; j < cardNames.length; ++j) tr2[j] -= needs[ra][j];
-                for (let b = a; b < active.length; ++b) {
-                    const rb = active[b];
-                    if (!canAdd(rb, tr2)) continue;
-                    const gain = recipes[ra].value + recipes[rb].value - recipes[lo].value;
-                    if (gain > EPS) {
-                        const tr3 = tr2.slice();
-                        for (let j = 0; j < cardNames.length; ++j) tr3[j] -= needs[rb][j];
-                        used[lo]--;
-                        used[ra]++;
-                        used[rb]++;
-                        for (let j = 0; j < cardNames.length; ++j) remaining[j] = tr3[j];
-                        searchImproved = true;
-                        break;
+        for (const lowRecipe of active) {
+            if (used[lowRecipe] <= 0 || improved) {
+                continue;
+            }
+
+            const trialRemaining = remaining.slice();
+            for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                trialRemaining[cardIndex] += needs[lowRecipe][cardIndex];
+            }
+
+            for (let firstIndex = 0; firstIndex < active.length && !improved; firstIndex += 1) {
+                const firstRecipe = active[firstIndex];
+                if (!canAdd(firstRecipe, trialRemaining)) {
+                    continue;
+                }
+
+                const afterFirst = trialRemaining.slice();
+                for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                    afterFirst[cardIndex] -= needs[firstRecipe][cardIndex];
+                }
+
+                for (let secondIndex = firstIndex; secondIndex < active.length; secondIndex += 1) {
+                    const secondRecipe = active[secondIndex];
+                    if (!canAdd(secondRecipe, afterFirst)) {
+                        continue;
                     }
+
+                    const gain = objectiveValues[firstRecipe] + objectiveValues[secondRecipe] - objectiveValues[lowRecipe];
+                    if (gain <= epsilon) {
+                        continue;
+                    }
+
+                    const afterSecond = afterFirst.slice();
+                    for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                        afterSecond[cardIndex] -= needs[secondRecipe][cardIndex];
+                        remaining[cardIndex] = afterSecond[cardIndex];
+                    }
+                    used[lowRecipe] -= 1;
+                    used[firstRecipe] += 1;
+                    used[secondRecipe] += 1;
+                    improved = true;
+                    break;
                 }
-                if (searchImproved) break;
             }
-            if (searchImproved) break;
         }
 
-        // 4c: 2-for-2 swap: remove 1 each of two recipes, add 1 each of two others
-        if (!searchImproved) {
-            for (let a = 0; a < active.length && !searchImproved; ++a) {
-                const ra = active[a];
-                if (used[ra] <= 0) continue;
-                for (let b = a; b < active.length && !searchImproved; ++b) {
-                    const rb = active[b];
-                    if (used[rb] <= (ra === rb ? 1 : 0)) continue;
-                    const lostValue = recipes[ra].value + recipes[rb].value;
-                    const tr = remaining.slice();
-                    for (let j = 0; j < cardNames.length; ++j) tr[j] += needs[ra][j] + needs[rb][j];
-                    for (let c = 0; c < active.length && !searchImproved; ++c) {
-                        const rc = active[c];
-                        if (!canAdd(rc, tr)) continue;
-                        const tr2 = tr.slice();
-                        for (let j = 0; j < cardNames.length; ++j) tr2[j] -= needs[rc][j];
-                        for (let d = c; d < active.length; ++d) {
-                            const rd = active[d];
-                            if (!canAdd(rd, tr2)) continue;
-                            const gain = recipes[rc].value + recipes[rd].value - lostValue;
-                            if (gain > EPS) {
-                                const tr3 = tr2.slice();
-                                for (let j = 0; j < cardNames.length; ++j) tr3[j] -= needs[rd][j];
-                                used[ra]--;
-                                used[rb]--;
-                                used[rc]++;
-                                used[rd]++;
-                                for (let j = 0; j < cardNames.length; ++j) remaining[j] = tr3[j];
-                                searchImproved = true;
+        if (!improved) {
+            for (let removeFirstIndex = 0; removeFirstIndex < active.length && !improved; removeFirstIndex += 1) {
+                const removeFirst = active[removeFirstIndex];
+                if (used[removeFirst] <= 0) {
+                    continue;
+                }
+
+                for (let removeSecondIndex = removeFirstIndex; removeSecondIndex < active.length && !improved; removeSecondIndex += 1) {
+                    const removeSecond = active[removeSecondIndex];
+                    if (used[removeSecond] <= (removeFirst === removeSecond ? 1 : 0)) {
+                        continue;
+                    }
+
+                    const trialRemaining = remaining.slice();
+                    const lostValue = objectiveValues[removeFirst] + objectiveValues[removeSecond];
+                    for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                        trialRemaining[cardIndex] += needs[removeFirst][cardIndex] + needs[removeSecond][cardIndex];
+                    }
+
+                    for (let addFirstIndex = 0; addFirstIndex < active.length && !improved; addFirstIndex += 1) {
+                        const addFirst = active[addFirstIndex];
+                        if (!canAdd(addFirst, trialRemaining)) {
+                            continue;
+                        }
+
+                        const afterFirst = trialRemaining.slice();
+                        for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                            afterFirst[cardIndex] -= needs[addFirst][cardIndex];
+                        }
+
+                        for (let addSecondIndex = addFirstIndex; addSecondIndex < active.length; addSecondIndex += 1) {
+                            const addSecond = active[addSecondIndex];
+                            if (!canAdd(addSecond, afterFirst)) {
+                                continue;
                             }
+
+                            const gain = objectiveValues[addFirst] + objectiveValues[addSecond] - lostValue;
+                            if (gain <= epsilon) {
+                                continue;
+                            }
+
+                            const afterSecond = afterFirst.slice();
+                            for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                                afterSecond[cardIndex] -= needs[addSecond][cardIndex];
+                                remaining[cardIndex] = afterSecond[cardIndex];
+                            }
+                            used[removeFirst] -= 1;
+                            used[removeSecond] -= 1;
+                            used[addFirst] += 1;
+                            used[addSecond] += 1;
+                            improved = true;
+                            break;
                         }
                     }
                 }
             }
         }
 
-        // 4d: Try greedy fill again after swaps
-        for (const i of recipeOrder) {
-            while (canAdd(i, remaining)) {
-                used[i]++;
-                for (let j = 0; j < cardNames.length; ++j) remaining[j] -= needs[i][j];
-                searchImproved = true;
+        recipeOrder.forEach(recipeIndex => {
+            while (canAdd(recipeIndex, remaining)) {
+                used[recipeIndex] += 1;
+                for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+                    remaining[cardIndex] -= needs[recipeIndex][cardIndex];
+                }
+                improved = true;
             }
-        }
+        });
     }
 
     const cardCounts = {};
-    for (let j = 0; j < cardNames.length; ++j) {
-        cardCounts[cardNames[j]] = remaining[j];
+    for (let cardIndex = 0; cardIndex < cardNames.length; cardIndex += 1) {
+        cardCounts[cardNames[cardIndex]] = remaining[cardIndex];
     }
-    optimizeResult = { used, cardCounts };
 
-    // Hide progress bar when done
+    optimizeResult = {
+        used,
+        cardCounts,
+        objectiveValues,
+        objectiveMode,
+    };
+
     if (progressBarContainer && progressBar) {
         progressBar.style.width = '100%';
         progressBar.textContent = '100%';
-        setTimeout(() => { progressBarContainer.style.display = 'none'; }, 500);
+        setTimeout(() => {
+            progressBarContainer.style.display = 'none';
+        }, 500);
     }
 }
 
 function renderResults() {
     const div = document.createElement('div');
     div.className = 'mb-4';
-    div.innerHTML = `<h4>Optimization Results</h4>`;
+    div.innerHTML = '<h4>Optimization Results</h4>';
+
     if (!optimizeResult) {
-        div.innerHTML += '<p class="text-muted">Click "Optimize Composes!" to see results.</p>';
+        div.innerHTML += '<p class="text-muted">Click the optimize button to see the best composition strategy and total expected rewards.</p>';
         return div;
     }
-    let totalValue = 0;
-    let list = document.createElement('ul');
-    recipes.forEach((r, i) => {
-        if (optimizeResult.used[i] > 0) {
-            let val = optimizeResult.used[i] * r.value;
-            totalValue += val;
-            let li = document.createElement('li');
-            li.innerHTML = `<b>${r.name}</b>: ${optimizeResult.used[i]} times (Total Value: ${val})`;
-            list.appendChild(li);
+
+    const totalRewards = new Map();
+    let totalObjective = 0;
+    const list = document.createElement('ul');
+    list.className = 'result-list';
+
+    recipes.forEach((recipe, recipeIndex) => {
+        const count = optimizeResult.used[recipeIndex];
+        if (!count) {
+            return;
         }
+
+        totalObjective += optimizeResult.objectiveValues[recipeIndex] * count;
+        getExpectedRewardsForOutcome(recipe.outcome).forEach(item => {
+            totalRewards.set(item.reward, (totalRewards.get(item.reward) || 0) + (item.amount * count));
+        });
+
+        const listItem = document.createElement('li');
+        listItem.className = 'result-item';
+        listItem.innerHTML = `
+            <div><strong>${recipe.name}</strong>: ${count} times</div>
+            <div class="small text-muted">${recipe.outcome} | Objective contribution: ${formatAmount(optimizeResult.objectiveValues[recipeIndex] * count)}</div>
+            <div class="result-summary">${getRewardSummaryText(recipe.outcome, count, 6)}</div>
+        `;
+        list.appendChild(listItem);
     });
+
     div.appendChild(list);
-    div.innerHTML += `<p><b>Total Value:</b> ${totalValue}</p>`;
-    // Residuals summary
+    div.innerHTML += `<p><strong>Total ${optimizeResult.objectiveMode === objectiveModes.rewards ? 'Reward Score' : 'Manual Rank Value'}:</strong> ${formatAmount(totalObjective)}</p>`;
+
+    const rewardsSection = document.createElement('div');
+    rewardsSection.className = 'mb-3';
+    rewardsSection.innerHTML = '<h5>Total Expected Rewards</h5>';
+
+    const rewardTotals = Array.from(totalRewards.entries())
+        .map(([reward, amount]) => ({ reward, amount }))
+        .sort((left, right) => right.amount - left.amount || left.reward.localeCompare(right.reward));
+
+    if (rewardTotals.length) {
+        const rewardList = document.createElement('div');
+        rewardList.className = 'reward-chip-list';
+        rewardTotals.forEach(item => {
+            const chip = document.createElement('span');
+            chip.className = 'reward-chip reward-chip-total';
+            const speedupDaysText = isSpeedupReward(item.reward)
+                ? ` (${formatMinutesAsDays(item.amount)}d)`
+                : '';
+            chip.textContent = `${item.reward}: ${formatRewardAmount(item.reward, item.amount)}${speedupDaysText}`;
+            rewardList.appendChild(chip);
+        });
+        rewardsSection.appendChild(rewardList);
+    } else {
+        rewardsSection.innerHTML += '<p class="text-muted">No expected rewards were produced.</p>';
+    }
+
+    div.appendChild(rewardsSection);
+
     let totalResidual = 0;
     let residualHtml = '<h5>Residual Cards</h5><ul>';
-    cards.forEach(c => {
-        const left = optimizeResult.cardCounts[c.name];
+    cards.forEach(card => {
+        const left = optimizeResult.cardCounts[card.name];
         totalResidual += left;
-        residualHtml += `<li><img src="${c.img}" style="width:20px;height:26px;vertical-align:middle;margin-right:4px;"> ${c.name}: <b>${left}</b></li>`;
+        residualHtml += `<li><img src="${card.img}" style="width:20px;height:26px;vertical-align:middle;margin-right:4px;" alt="${card.name}"> ${card.name}: <strong>${left}</strong></li>`;
     });
-    residualHtml += `</ul><p><b>Total Residual:</b> ${totalResidual}</p>`;
+    residualHtml += `</ul><p><strong>Total Residual:</strong> ${totalResidual}</p>`;
     div.innerHTML += residualHtml;
-    // Remaining cards chart
-    let canvas = document.createElement('canvas');
+
+    const canvas = document.createElement('canvas');
     canvas.id = 'remainingChart';
     div.appendChild(canvas);
     setTimeout(() => {
-        let ctx = document.getElementById('remainingChart').getContext('2d');
+        const ctx = document.getElementById('remainingChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: cards.map(c => c.name),
+                labels: cards.map(card => card.name),
                 datasets: [{
                     label: 'Cards Left',
-                    data: cards.map(c => optimizeResult.cardCounts[c.name]),
+                    data: cards.map(card => optimizeResult.cardCounts[card.name]),
                     backgroundColor: '#0d6efd88',
-                }]
+                }],
             },
             options: {
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
-            }
+                scales: { y: { beginAtZero: true } },
+            },
         });
     }, 100);
+
     return div;
 }
 

@@ -61,6 +61,30 @@ ul {
 .recipe-row:hover {
     background: #e9ecef;
 }
+.recipe-row-stacked {
+    flex-direction: column;
+    align-items: stretch;
+}
+.recipe-row-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+.recipe-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    width: 100%;
+    font-size: 0.82rem;
+    color: #495057;
+}
+.recipe-score {
+    font-weight: 600;
+}
+.recipe-summary {
+    color: #6c757d;
+}
 .recipe-cards {
     display: flex;
     align-items: center;
@@ -98,4 +122,84 @@ ul {
 }
 .gap-2 {
     gap: 0.5rem !important;
+}
+.reward-preset-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.reward-preset-active {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.reward-weight-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+.reward-enable-input {
+    margin: 0;
+    flex: 0 0 auto;
+}
+.reward-weight-label {
+    flex: 1 1 auto;
+    font-size: 0.84rem;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+}
+.reward-weight-note {
+    color: #6c757d;
+    font-size: 0.72rem;
+    font-weight: 400;
+}
+.reward-weight-input {
+    width: 90px !important;
+}
+.reward-weight-row-disabled {
+    opacity: 0.55;
+}
+.reward-reference {
+    border-top: 1px solid #dee2e6;
+    padding-top: 0.75rem;
+}
+.reward-reference-item {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #eef1f4;
+}
+.reward-reference-title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    align-items: center;
+    margin-bottom: 0.3rem;
+    font-size: 0.84rem;
+}
+.reward-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+.reward-chip {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: #eef3ff;
+    color: #1f3c88;
+    font-size: 0.78rem;
+}
+.reward-chip-total {
+    background: #e8f7ed;
+    color: #166534;
+}
+.result-list {
+    padding-left: 1rem;
+}
+.result-item {
+    margin-bottom: 0.6rem;
+}
+.result-summary {
+    font-size: 0.82rem;
+    color: #495057;
 }

@@ -115,6 +115,8 @@ const rewardPresetDefinitions = [
     },
 ];
 
+const optimizerSettingsStorageKey = 'evony-card-optimizer-settings-v1';
+
 let cards = null;
 let recipes = null;
 let luckyBoxRewards = defaultRewardConfig;
@@ -137,6 +139,58 @@ function loadJson(path) {
         }
         return response.json();
     });
+}
+
+function persistOptimizerSettings() {
+    try {
+        const payload = {
+            objectiveMode,
+            activeRewardPresetKey,
+            rewardWeights,
+            rewardEnabled,
+        };
+        localStorage.setItem(optimizerSettingsStorageKey, JSON.stringify(payload));
+    } catch (_error) {
+        // Ignore storage errors (privacy mode or disabled storage)
+    }
+}
+
+function restorePersistedSettings() {
+    try {
+        const raw = localStorage.getItem(optimizerSettingsStorageKey);
+        if (!raw) {
+            return;
+        }
+
+        const data = JSON.parse(raw);
+        if (data.objectiveMode === objectiveModes.manual || data.objectiveMode === objectiveModes.rewards) {
+            objectiveMode = data.objectiveMode;
+        }
+
+        if (data.rewardWeights && typeof data.rewardWeights === 'object') {
+            Object.keys(rewardWeights).forEach(rewardName => {
+                if (Object.prototype.hasOwnProperty.call(data.rewardWeights, rewardName)) {
+                    rewardWeights[rewardName] = Math.max(0, Number(data.rewardWeights[rewardName]) || 0);
+                }
+            });
+        }
+
+        if (data.rewardEnabled && typeof data.rewardEnabled === 'object') {
+            Object.keys(rewardEnabled).forEach(rewardName => {
+                if (Object.prototype.hasOwnProperty.call(data.rewardEnabled, rewardName)) {
+                    rewardEnabled[rewardName] = Boolean(data.rewardEnabled[rewardName]);
+                }
+            });
+        }
+
+        if (typeof data.activeRewardPresetKey === 'string' && rewardPresetDefinitions.some(item => item.key === data.activeRewardPresetKey)) {
+            activeRewardPresetKey = data.activeRewardPresetKey;
+        } else {
+            activeRewardPresetKey = null;
+        }
+    } catch (_error) {
+        // Ignore malformed stored state
+    }
 }
 
 function makeDomId(prefix, value) {
@@ -207,6 +261,7 @@ function applyRewardPreset(presetKey) {
     });
 
     activeRewardPresetKey = presetKey;
+    persistOptimizerSettings();
 
     renderApp();
 }
@@ -249,6 +304,7 @@ function loadConfigAndInit() {
         }
 
         initializeRewardWeights();
+        restorePersistedSettings();
         configLoaded = true;
         renderApp();
     });
@@ -386,6 +442,26 @@ function getRewardSummaryText(outcome, multiplier = 1, limit = 3) {
         .join(' | ');
 }
 
+function renderMobileCollapsibleSection(title, contentNode, openByDefault) {
+    const wrapper = document.createElement('details');
+    wrapper.className = 'mobile-collapsible';
+    if (openByDefault) {
+        wrapper.open = true;
+    }
+
+    const summary = document.createElement('summary');
+    summary.className = 'mobile-collapsible-summary';
+    summary.textContent = title;
+
+    const body = document.createElement('div');
+    body.className = 'mobile-collapsible-body';
+    body.appendChild(contentNode);
+
+    wrapper.appendChild(summary);
+    wrapper.appendChild(body);
+    return wrapper;
+}
+
 function renderApp() {
     if (!configLoaded) {
         const root = document.getElementById('app-root') || document.getElementById('main-flex');
@@ -404,11 +480,14 @@ function renderApp() {
         recipeCol.innerHTML = '';
         resultCol.innerHTML = '';
 
-        cardCol.appendChild(renderCardInput());
-        cardCol.appendChild(renderOptimizeControls());
-        cardCol.appendChild(renderRewardWeightsPanel());
-        recipeCol.appendChild(renderRecipeInput());
-        resultCol.appendChild(renderResults());
+        const inventoryControls = document.createElement('div');
+        inventoryControls.appendChild(renderCardInput());
+        inventoryControls.appendChild(renderOptimizeControls());
+        inventoryControls.appendChild(renderRewardWeightsPanel());
+
+        cardCol.appendChild(renderMobileCollapsibleSection('Inventory & Controls', inventoryControls, true));
+        recipeCol.appendChild(renderMobileCollapsibleSection('Recipes', renderRecipeInput(), true));
+        resultCol.appendChild(renderMobileCollapsibleSection('Results', renderResults(), true));
         return;
     }
 
@@ -418,11 +497,14 @@ function renderApp() {
     }
 
     root.innerHTML = '';
-    root.appendChild(renderCardInput());
-    root.appendChild(renderOptimizeControls());
-    root.appendChild(renderRewardWeightsPanel());
-    root.appendChild(renderRecipeInput());
-    root.appendChild(renderResults());
+    const inventoryControls = document.createElement('div');
+    inventoryControls.appendChild(renderCardInput());
+    inventoryControls.appendChild(renderOptimizeControls());
+    inventoryControls.appendChild(renderRewardWeightsPanel());
+
+    root.appendChild(renderMobileCollapsibleSection('Inventory & Controls', inventoryControls, true));
+    root.appendChild(renderMobileCollapsibleSection('Recipes', renderRecipeInput(), true));
+    root.appendChild(renderMobileCollapsibleSection('Results', renderResults(), true));
 }
 
 function renderCardInput() {
@@ -538,11 +620,12 @@ function renderOptimizeControls() {
 
     div.querySelector('select').addEventListener('change', event => {
         objectiveMode = event.target.value;
+        persistOptimizerSettings();
         renderApp();
     });
 
     const button = document.createElement('button');
-    button.className = 'btn btn-primary btn-lg w-100';
+    button.className = 'btn btn-primary btn-lg w-100 optimize-action-btn';
     button.textContent = objectiveMode === objectiveModes.rewards ? 'Optimize for Rewards' : 'Optimize by Rank';
     button.onclick = () => {
         const progressBarContainer = document.getElementById('progress-bar-container');
@@ -615,12 +698,14 @@ function renderRewardWeightsPanel() {
             numberInput.disabled = !rewardEnabled[rewardName];
             row.classList.toggle('reward-weight-row-disabled', !rewardEnabled[rewardName]);
             activeRewardPresetKey = null;
+            persistOptimizerSettings();
             renderApp();
         });
 
         numberInput.addEventListener('change', event => {
             rewardWeights[rewardName] = Math.max(0, parseFloat(event.target.value) || 0);
             activeRewardPresetKey = null;
+            persistOptimizerSettings();
             renderApp();
         });
 

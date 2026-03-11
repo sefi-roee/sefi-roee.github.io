@@ -8,17 +8,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container py-2">
-        <h1 class="mb-3 text-center">Evony Card Compose Optimizer</h1>
+    <div class="container py-3 app-container">
+        <h1 class="mb-3 text-center app-title">Evony Card Compose Optimizer</h1>
         <div id="progress-bar-container" style="display:none;">
             <div class="progress mb-3">
                 <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
             </div>
         </div>
-        <div id="main-flex" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: flex-start;">
-            <div id="card-col" style="flex: 1 1 220px; min-width: 200px; max-width: 260px;"></div>
-            <div id="recipe-col" style="flex: 2 1 340px; min-width: 260px; max-width: 420px;"></div>
-            <div id="result-col" style="flex: 2 1 340px; min-width: 260px; max-width: 420px;"></div>
+        <div id="main-flex" class="optimizer-layout">
+            <div id="card-col" class="layout-panel"></div>
+            <div id="recipe-col" class="layout-panel"></div>
+            <div id="result-col" class="layout-panel"></div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

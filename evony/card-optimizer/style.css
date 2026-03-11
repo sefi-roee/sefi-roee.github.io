@@ -1,6 +1,36 @@
 body {
-    background: #f8fafc;
+    background: radial-gradient(circle at top right, #f2f6ff, #eef3fb 45%, #f8fafc);
     font-size: 0.95rem;
+}
+.app-container {
+    max-width: 1480px;
+}
+.app-title {
+    font-size: clamp(1.25rem, 1.6vw, 1.8rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+.optimizer-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 290px) minmax(380px, 1fr) minmax(380px, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+.layout-panel {
+    background: #ffffff;
+    border: 1px solid #dfe7f3;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(42, 59, 92, 0.08);
+    padding: 0.8rem;
+}
+.mobile-collapsible {
+    border: 0;
+}
+.mobile-collapsible-summary {
+    display: none;
+}
+.mobile-collapsible-body {
+    padding-top: 0;
 }
 #app-root {
     background: #fff;
@@ -34,7 +64,10 @@ h1, h4 {
     padding: 0.1em 0.3em;
     font-size: 0.95em;
     height: 1.7em;
-    width: 60px !important;
+    width: auto !important;
+}
+.compose-row .form-control-sm {
+    width: 74px !important;
 }
 .mb-4 {
     margin-bottom: 1rem !important;
@@ -202,4 +235,96 @@ ul {
 .result-summary {
     font-size: 0.82rem;
     color: #495057;
+}
+
+@media (max-width: 1100px) {
+    .optimizer-layout {
+        grid-template-columns: minmax(240px, 300px) minmax(420px, 1fr);
+    }
+
+    #result-col {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 860px) {
+    .app-container {
+        padding-left: 0.55rem;
+        padding-right: 0.55rem;
+    }
+
+    .optimizer-layout {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .layout-panel {
+        border-radius: 10px;
+        padding: 0.4rem;
+    }
+
+    .mobile-collapsible {
+        border: 1px solid #dfe7f3;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 6px 16px rgba(42, 59, 92, 0.06);
+        padding: 0.45rem 0.55rem;
+    }
+
+    .mobile-collapsible + .mobile-collapsible {
+        margin-top: 0.6rem;
+    }
+
+    .mobile-collapsible-summary {
+        display: block;
+        list-style: none;
+        cursor: pointer;
+        font-size: 0.94rem;
+        font-weight: 700;
+        color: #1f2f4f;
+        padding: 0.2rem 0;
+    }
+
+    .mobile-collapsible-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .mobile-collapsible-summary::after {
+        content: '▾';
+        float: right;
+        color: #4f628a;
+        transform: translateY(-1px);
+    }
+
+    .mobile-collapsible:not([open]) .mobile-collapsible-summary::after {
+        content: '▸';
+    }
+
+    .mobile-collapsible-body {
+        margin-top: 0.45rem;
+    }
+
+    .recipe-row-main {
+        flex-wrap: wrap;
+        row-gap: 0.4rem;
+    }
+
+    .recipe-value {
+        margin-left: 0;
+    }
+
+    .reward-weight-row {
+        align-items: flex-start;
+    }
+
+    .reward-weight-input {
+        width: 84px !important;
+    }
+
+    .optimize-action-btn {
+        position: sticky;
+        bottom: 10px;
+        z-index: 25;
+        box-shadow: 0 10px 20px rgba(13, 110, 253, 0.35);
+    }
 }

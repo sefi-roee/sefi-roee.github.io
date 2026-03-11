@@ -15,56 +15,65 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container py-4">
-    <header class="mb-4">
+  <main class="container py-4 temple-shell">
+    <header class="temple-header mb-4">
       <h1 class="fw-bold mb-1">Giant's Wisdom Temple Optimizer</h1>
-      <p class="text-muted mb-0">Minimize hammer usage by revealing all pieces optimally.</p>
+      <p class="mb-0">Minimize hammer usage by revealing all pieces optimally.</p>
     </header>
 
-    <section class="card p-3 mb-3">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label for="levelSelect" class="form-label">Level</label>
-          <select id="levelSelect" class="form-select">
-            <option value="1" selected>Level 1 (4×4)</option>
-            <option value="2">Level 2 (5×5)</option>
-            <option value="3">Level 3 (6×6)</option>
-            <option value="4">Level 4 (7×7)</option>
-          </select>
+    <div class="temple-layout">
+      <section class="temple-panel temple-panel--controls">
+        <div class="card p-3 mb-3">
+          <h2 class="h5 mb-3">Controls</h2>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-12 col-lg-12">
+              <label for="levelSelect" class="form-label">Level</label>
+              <select id="levelSelect" class="form-select">
+                <option value="1" selected>Level 1 (4×4)</option>
+                <option value="2">Level 2 (5×5)</option>
+                <option value="3">Level 3 (6×6)</option>
+                <option value="4">Level 4 (7×7)</option>
+              </select>
+            </div>
+            <div class="col-md-12 col-lg-12">
+              <label for="optimizerSelect" class="form-label">Optimizer Strategy</label>
+              <select id="optimizerSelect" class="form-select">
+                <option value="any-hit" selected>Min average-case (1-step)</option>
+                <option value="rare-focus">Target rare piece (1-step)</option>
+                <option value="common-focus">Target common piece (1-step)</option>
+                <option value="checkerboard">Coverage / parity bias</option>
+              </select>
+              <div id="strategyDesc" class="mt-2 small text-muted"></div>
+            </div>
+          </div>
+          <div id="levelDesc" class="mt-3 small text-muted"></div>
         </div>
-        <div class="col-md-8">
-          <label for="optimizerSelect" class="form-label">Optimizer Strategy</label>
-          <select id="optimizerSelect" class="form-select">
-            <option value="any-hit" selected>Min average-case (1-step)</option>
-            <option value="rare-focus">Target rare piece (1-step)</option>
-            <option value="common-focus">Target common piece (1-step)</option>
-            <option value="checkerboard">Coverage / parity bias</option>
-          </select>
-          <div id="strategyDesc" class="mt-2 small text-muted"></div>
-        </div>
-      </div>
-      <div id="levelDesc" class="mt-3 small text-muted"></div>
-    </section>
 
-    <section class="card p-3 mb-3">
-      <h2 class="h5">Interactive Grid</h2>
-      <p class="small text-muted">Click a cell to toggle through only currently feasible outcomes for that cell. Recommendations update instantly.</p>
-      <div class="d-flex gap-2 mb-3">
-        <button id="resetGridBtn" class="btn btn-outline-danger">Reset Grid</button>
-      </div>
-      <div class="small text-muted mb-2">Legend: green = dot, purple = triangle (corner indicates TL/TR/BL/BR part), blue = bar, yellow = block, miss = X.</div>
-      <div id="gridWrap" class="grid-wrap"></div>
-    </section>
+        <section class="card p-3 mb-3">
+          <h2 class="h5">Recommendations</h2>
+          <div id="recommendationText" class="mb-2 text-muted">No calculation yet.</div>
+          <div id="statsText" class="mb-2 text-muted"></div>
+          <div id="topCells"></div>
+        </section>
+      </section>
 
-    <section class="card p-3 mb-4">
-      <h2 class="h5">Recommendations</h2>
-      <div id="recommendationText" class="mb-2 text-muted">No calculation yet.</div>
-      <div id="statsText" class="mb-2 text-muted"></div>
-      <div id="topCells"></div>
-    </section>
+      <section class="temple-panel temple-panel--board">
+        <section class="card p-3 mb-3 board-card">
+          <div class="board-topbar">
+            <div>
+              <h2 class="h5 mb-1">Interactive Grid</h2>
+              <p class="small text-muted mb-2">Click a cell to toggle through only currently feasible outcomes for that cell. Recommendations update instantly.</p>
+            </div>
+            <button id="resetGridBtn" class="btn btn-outline-danger">Reset Grid</button>
+          </div>
+          <div class="small text-muted mb-2">Legend: green = dot, purple = triangle (corner indicates TL/TR/BL/BR part), blue = bar, yellow = block, miss = X.</div>
+          <div id="gridWrap" class="grid-wrap"></div>
+        </section>
+      </section>
+    </div>
 
-    <div class="text-center">
-      <a href="../" class="link-light">Back to Evony tools</a>
+    <div class="text-center mt-3">
+      <a href="../" class="temple-back-link">Back to Evony tools</a>
     </div>
   </main>
 

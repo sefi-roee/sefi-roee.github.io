@@ -1,26 +1,76 @@
 body {
-  background: linear-gradient(145deg, #1f2937, #111827);
-  color: #f3f4f6;
+  background: radial-gradient(circle at top right, #e7efff, #f1f6ff 40%, #f7fafc);
+  color: #1f2937;
 }
 
 .container {
-  max-width: 960px;
+  max-width: 1240px;
+}
+
+.temple-header {
+  background: linear-gradient(125deg, #143765, #1f528d, #3571b8);
+  color: #f8fbff;
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 10px 24px rgba(18, 53, 95, 0.22);
+}
+
+.temple-header p {
+  opacity: 0.92;
+}
+
+.temple-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 390px) minmax(560px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.temple-panel--controls {
+  position: sticky;
+  top: 12px;
 }
 
 .card {
-  background: #f9fafb;
+  background: #ffffff;
   color: #111827;
-  border: 0;
-  border-radius: 12px;
+  border: 1px solid #dce5f1;
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(30, 58, 103, 0.08);
+}
+
+.board-card {
+  min-height: 560px;
+}
+
+.board-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.temple-back-link {
+  color: #174781;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.temple-back-link:hover {
+  color: #0f2f59;
+  text-decoration: underline;
 }
 
 .grid-wrap {
   --cell-size: 34px;
   display: grid;
   gap: 0;
-  justify-content: start;
+  justify-content: center;
   width: max-content;
   max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .cell {
@@ -527,19 +577,49 @@ body {
 }
 
 @media (max-width: 768px) {
-  .container {
+  .temple-shell {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
 
+  .temple-layout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .temple-panel--controls {
+    position: static;
+  }
+
+  .temple-header {
+    border-radius: 12px;
+    padding: 0.85rem 0.95rem;
+  }
+
+  .temple-header h1 {
+    font-size: 1.4rem;
+  }
+
   .card {
     padding: 0.85rem !important;
+    border-radius: 12px;
+  }
+
+  .board-card {
+    min-height: 0;
+  }
+
+  .board-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #resetGridBtn {
+    width: 100%;
   }
 
   .grid-wrap {
     --cell-size: 31px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .cell {

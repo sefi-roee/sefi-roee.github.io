@@ -29,6 +29,17 @@ A sophisticated web application for optimizing card composing strategies in Evon
 3. Click "Optimize Composes!"
 4. See which recipes to use and how many cards will remain
 
+### 🎁 Civilization Treasure Chest Calculator
+**Live:** [https://sefi-roee.github.io/evony/civilization-treasure/](https://sefi-roee.github.io/evony/civilization-treasure/)
+
+Calculator for chest count planning when each chest randomly gives 1 of 7 civilization tokens.
+
+**Features:**
+- Set token targets for each civilization (Y1..Y7)
+- Set required success probability (X)
+- Solver mode toggle: Auto, Exact only, or Fast approximation only
+- Runtime safety warnings for very large inputs
+
 ---
 
 ## Development

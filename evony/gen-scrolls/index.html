@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gen Scrolls Calculator</title>
+	<script>
+		if (location.protocol.startsWith("http") && !location.pathname.endsWith("/") && !location.pathname.endsWith(".html")) {
+			location.replace(location.pathname + "/" + location.search + location.hash);
+		}
+	</script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main class="container py-4 scroll-shell">
+		<header class="scroll-header mb-4">
+			<h1 class="fw-bold mb-1">Gen Scrolls Calculator</h1>
+			<p class="mb-0">Plan how many scroll attempts you need to hit a target number of successes, then inspect the exact win probability with linked controls and a live binomial curve.</p>
+		</header>
+
+		<section class="card p-3 p-md-4 mb-3 scroll-card">
+			<div class="row g-3 align-items-end">
+				<div class="col-md-4">
+					<label for="scrollProbability" class="form-label">Success Probability Per Scroll (%)</label>
+					<input id="scrollProbability" type="number" min="0" max="100" step="0.01" class="form-control" value="12.5">
+				</div>
+				<div class="col-md-4">
+					<label for="targetSuccesses" class="form-label">Target Successes</label>
+					<input id="targetSuccesses" type="number" min="1" step="1" class="form-control" value="2">
+				</div>
+				<div class="col-md-4">
+					<div class="summary-chip">
+						<div class="summary-chip__label">Distribution</div>
+						<div class="summary-chip__value">Binomial</div>
+						<div class="summary-chip__sub">At least K successes in N attempts</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex flex-wrap gap-2 mt-4">
+				<button id="exampleBtn" class="btn btn-primary">Load Example</button>
+				<button id="resetBtn" class="btn btn-outline-secondary">Reset</button>
+			</div>
+		</section>
+
+		<section class="card p-3 p-md-4 mb-3 scroll-card">
+			<div class="linked-head mb-3">
+				<div>
+					<h2 class="h5 mb-1">Linked Outcome Controls</h2>
+					<p class="mb-0 text-muted">Move either slider. The other snaps to the matching exact outcome for the same inputs.</p>
+				</div>
+				<div id="snapHint" class="snap-hint">Probability snaps to the nearest reachable value because repetitions are integers.</div>
+			</div>
+
+			<div class="control-block mb-4">
+				<div class="control-block__top">
+					<label for="winProbabilityRange" class="form-label mb-0">Winning Probability (%)</label>
+					<input id="winProbabilityNumber" type="number" min="0" max="99.9999" step="0.01" class="form-control control-number" value="50">
+				</div>
+				<input id="winProbabilityRange" type="range" min="0" max="99.9999" step="0.01" value="50" class="form-range control-range">
+			</div>
+
+			<div class="control-block">
+				<div class="control-block__top">
+					<label for="repetitionsRange" class="form-label mb-0">Scroll Attempts</label>
+					<input id="repetitionsNumber" type="number" min="0" step="1" class="form-control control-number" value="10">
+				</div>
+				<input id="repetitionsRange" type="range" min="0" max="50" step="1" value="10" class="form-range control-range">
+			</div>
+		</section>
+
+		<section class="card p-3 p-md-4 mb-3 scroll-card">
+			<div class="viz-head mb-3">
+				<div>
+					<h2 class="h5 mb-1">Formula Visualization</h2>
+					<p class="mb-0 text-muted">The calculator uses the exact binomial tail probability for getting at least the target number of successes.</p>
+				</div>
+				<div class="formula-badge">Exact, not simulated</div>
+			</div>
+
+			<div class="formula-grid">
+				<div class="formula-card">
+					<div class="formula-card__label">General Formula</div>
+					<div id="formulaGeneral" class="formula-math"></div>
+				</div>
+				<div class="formula-card formula-card--accent">
+					<div class="formula-card__label">Current Inputs</div>
+					<div id="formulaCurrent" class="formula-math"></div>
+					<div id="formulaDetail" class="formula-note"></div>
+				</div>
+			</div>
+
+			<div class="curve-card mt-3">
+				<div class="curve-card__head">
+					<h3 class="h6 mb-1">Winning Probability by Attempts</h3>
+					<p class="mb-0 text-muted">The highlighted point is the currently selected attempt count.</p>
+				</div>
+				<svg id="probabilityChart" class="probability-chart" viewBox="0 0 760 250" role="img" aria-label="Winning probability curve"></svg>
+			</div>
+		</section>
+
+		<section class="card p-3 p-md-4 scroll-card">
+			<h2 class="h5 mb-3">Outcome Summary</h2>
+			<div class="results-grid">
+				<div class="result-tile">
+					<div class="result-tile__label">Exact Win Probability</div>
+					<div id="probabilityValue" class="result-tile__value">0%</div>
+					<div id="probabilityDetail" class="result-tile__detail">Chance to get at least the target number of successes.</div>
+				</div>
+				<div class="result-tile">
+					<div class="result-tile__label">Scroll Attempts</div>
+					<div id="repetitionsValue" class="result-tile__value">0</div>
+					<div id="repetitionsDetail" class="result-tile__detail">Attempt count for the current linked-slider position.</div>
+				</div>
+				<div class="result-tile result-tile--accent">
+					<div class="result-tile__label">Expected Successes</div>
+					<div id="expectedValue" class="result-tile__value">0</div>
+					<div id="summaryLine" class="result-tile__detail">Set inputs to see the combined outcome.</div>
+				</div>
+			</div>
+		</section>
+
+		<div class="text-center mt-3">
+			<a href="../" class="scroll-back-link">Back to Evony tools</a>
+		</div>
+	</main>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+	<script src="app.js"></script>
+</body>
+</html>

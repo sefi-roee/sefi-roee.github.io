@@ -40,6 +40,19 @@ Calculator for chest count planning when each chest randomly gives 1 of 7 civili
 - Solver mode toggle: Auto, Exact only, or Fast approximation only
 - Runtime safety warnings for very large inputs
 
+### 🎯 Gen Scrolls Calculator
+**Live:** [https://sefi-roee.github.io/evony/gen-scrolls/](https://sefi-roee.github.io/evony/gen-scrolls/)
+
+Calculator for planning repeated scroll attempts with an exact binomial success model.
+
+**Features:**
+- Enter the per-scroll success probability
+- Set the target number of successes you want to reach
+- View exact winning probability for any repetition count
+- Use linked sliders to move between win probability and needed repetitions
+- See the exact binomial formula rendered with the live input values
+- Inspect a probability-vs-attempts curve with the current point highlighted
+
 ---
 
 ## Development

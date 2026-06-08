@@ -283,11 +283,14 @@ function syncPresetButtons() {
 
 	elements.presetPremiumBtn.className = `btn ${premiumActive ? "btn-primary" : "btn-outline-secondary"} preset-btn`;
 	elements.presetRegularBtn.className = `btn ${regularActive ? "btn-primary" : "btn-outline-secondary"} preset-btn`;
+	elements.presetPremiumBtn.setAttribute("aria-pressed", premiumActive ? "true" : "false");
+	elements.presetRegularBtn.setAttribute("aria-pressed", regularActive ? "true" : "false");
 }
 
 function applyPreset(preset) {
 	state.probabilityPerScroll = preset.probabilityPerScrollPercent / 100;
 	state.targetSuccesses = preset.targetSuccesses;
+	state.repetitions = DEFAULT_STATE.repetitions;
 	syncBaseInputs();
 	syncPresetButtons();
 	syncOutputs();
@@ -309,9 +312,6 @@ function applyProbabilityPosition(rawPercent) {
 
 function applyRepetitionPosition(rawValue) {
 	state.repetitions = parseRepetitions(rawValue);
-	if (state.repetitions < state.targetSuccesses && state.probabilityPerScroll > 0) {
-		state.repetitions = Math.max(0, state.repetitions);
-	}
 	syncOutputs();
 }
 
@@ -335,9 +335,7 @@ function loadExample() {
 }
 
 function resetState() {
-	state.probabilityPerScroll = DEFAULT_STATE.probabilityPerScrollPercent / 100;
-	state.targetSuccesses = DEFAULT_STATE.targetSuccesses;
-	state.repetitions = DEFAULT_STATE.repetitions;
+	applyPreset(PRESETS.premium);
 	syncBaseInputs();
 	syncOutputs();
 }
@@ -372,11 +370,3 @@ elements.presetRegularBtn.addEventListener("click", () => {
 elements.resetBtn.addEventListener("click", resetState);
 
 resetState();
-
-if (window.katex) {
-	resetState();
-} else {
-	window.addEventListener("load", () => {
-		syncOutputs();
-	});
-}

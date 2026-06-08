@@ -1,10 +1,11 @@
 const DEFAULT_STATE = {
-	probabilityPerScrollPercent: 12.5,
-	targetSuccesses: 2,
+	probabilityPerScrollPercent: 14.81,
+	targetSuccesses: 16,
 	repetitions: 17
 };
 
-const MAX_REPETITIONS = 1000000;
+const MIN_REPETITIONS = 1;
+const MAX_REPETITIONS = 300;
 
 const elements = {
 	probabilityPerScroll: document.getElementById("scrollProbability"),
@@ -55,8 +56,8 @@ function parseTargetSuccesses(rawValue) {
 
 function parseRepetitions(rawValue) {
 	const value = Math.floor(Number(rawValue));
-	if (!Number.isFinite(value) || value < 0) {
-		return 0;
+	if (!Number.isFinite(value) || value < MIN_REPETITIONS) {
+		return MIN_REPETITIONS;
 	}
 	return Math.min(value, MAX_REPETITIONS);
 }
@@ -115,7 +116,7 @@ function successProbabilityAtLeast(repetitions, targetSuccesses, perScrollProbab
 
 function findMinimumRepetitions(perScrollProbability, targetSuccesses, desiredProbability) {
 	if (targetSuccesses <= 0 || desiredProbability <= 0) {
-		return 0;
+		return MIN_REPETITIONS;
 	}
 	if (perScrollProbability <= 0) {
 		return Number.POSITIVE_INFINITY;
@@ -150,9 +151,10 @@ function findMinimumRepetitions(perScrollProbability, targetSuccesses, desiredPr
 }
 
 function updateRepetitionRangeMax(currentRepetitions) {
-	const baseMax = Math.max(25, state.targetSuccesses * 3, Math.ceil(currentRepetitions * 1.25));
-	const nextMax = Math.min(MAX_REPETITIONS, Math.max(baseMax, currentRepetitions));
-	elements.repetitionsRange.max = String(nextMax);
+	elements.repetitionsRange.min = String(MIN_REPETITIONS);
+	elements.repetitionsRange.max = String(MAX_REPETITIONS);
+	elements.repetitionsNumber.min = String(MIN_REPETITIONS);
+	elements.repetitionsNumber.max = String(MAX_REPETITIONS);
 }
 
 function renderFormula(generalFormula, currentFormula) {
@@ -220,10 +222,10 @@ function buildChartSvg(points, selectedAttempts, selectedProbability) {
 }
 
 function renderProbabilityChart(selectedProbability) {
-	const chartMax = Math.max(12, state.repetitions + Math.max(12, Math.ceil(state.repetitions * 0.35)), state.targetSuccesses + 8);
+	const chartMax = MAX_REPETITIONS;
 	const points = [];
 
-	for (let attempts = 0; attempts <= chartMax; attempts += 1) {
+	for (let attempts = MIN_REPETITIONS; attempts <= chartMax; attempts += 1) {
 		points.push({
 			attempts,
 			probability: successProbabilityAtLeast(attempts, state.targetSuccesses, state.probabilityPerScroll)
@@ -293,9 +295,9 @@ function applyRepetitionPosition(rawValue) {
 function refreshFromBaseInputs() {
 	state.probabilityPerScroll = parseProbabilityPercent(elements.probabilityPerScroll.value);
 	state.targetSuccesses = parseTargetSuccesses(elements.targetSuccesses.value);
-	state.repetitions = Math.max(state.repetitions, 0);
+	state.repetitions = clamp(state.repetitions, MIN_REPETITIONS, MAX_REPETITIONS);
 	if (state.probabilityPerScroll >= 1) {
-		state.repetitions = Math.max(state.repetitions, state.targetSuccesses);
+		state.repetitions = clamp(Math.max(state.repetitions, state.targetSuccesses), MIN_REPETITIONS, MAX_REPETITIONS);
 	}
 	syncBaseInputs();
 	syncOutputs();

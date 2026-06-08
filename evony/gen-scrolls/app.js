@@ -4,6 +4,17 @@ const DEFAULT_STATE = {
 	repetitions: 17
 };
 
+const PRESETS = {
+	premium: {
+		probabilityPerScrollPercent: 14.81,
+		targetSuccesses: 16
+	},
+	regular: {
+		probabilityPerScrollPercent: 8.66,
+		targetSuccesses: 16
+	}
+};
+
 const MIN_REPETITIONS = 1;
 const MAX_REPETITIONS = 300;
 
@@ -23,7 +34,8 @@ const elements = {
 	formulaCurrent: document.getElementById("formulaCurrent"),
 	formulaDetail: document.getElementById("formulaDetail"),
 	probabilityChart: document.getElementById("probabilityChart"),
-	exampleBtn: document.getElementById("exampleBtn"),
+	presetPremiumBtn: document.getElementById("presetPremiumBtn"),
+	presetRegularBtn: document.getElementById("presetRegularBtn"),
 	resetBtn: document.getElementById("resetBtn")
 };
 
@@ -263,6 +275,24 @@ function syncBaseInputs() {
 	elements.targetSuccesses.value = String(state.targetSuccesses);
 }
 
+function syncPresetButtons() {
+	const premiumActive = Math.abs(state.probabilityPerScroll - PRESETS.premium.probabilityPerScrollPercent / 100) < 0.000001
+		&& state.targetSuccesses === PRESETS.premium.targetSuccesses;
+	const regularActive = Math.abs(state.probabilityPerScroll - PRESETS.regular.probabilityPerScrollPercent / 100) < 0.000001
+		&& state.targetSuccesses === PRESETS.regular.targetSuccesses;
+
+	elements.presetPremiumBtn.className = `btn ${premiumActive ? "btn-primary" : "btn-outline-secondary"} preset-btn`;
+	elements.presetRegularBtn.className = `btn ${regularActive ? "btn-primary" : "btn-outline-secondary"} preset-btn`;
+}
+
+function applyPreset(preset) {
+	state.probabilityPerScroll = preset.probabilityPerScrollPercent / 100;
+	state.targetSuccesses = preset.targetSuccesses;
+	syncBaseInputs();
+	syncPresetButtons();
+	syncOutputs();
+}
+
 function applyProbabilityPosition(rawPercent) {
 	const desiredProbability = clamp(Number(rawPercent), 0, 99.9999) / 100;
 	const repetitions = findMinimumRepetitions(state.probabilityPerScroll, state.targetSuccesses, desiredProbability);
@@ -331,7 +361,14 @@ elements.repetitionsNumber.addEventListener("input", event => {
 	applyRepetitionPosition(event.target.value);
 });
 
-elements.exampleBtn.addEventListener("click", loadExample);
+elements.presetPremiumBtn.addEventListener("click", () => {
+	applyPreset(PRESETS.premium);
+});
+
+elements.presetRegularBtn.addEventListener("click", () => {
+	applyPreset(PRESETS.regular);
+});
+
 elements.resetBtn.addEventListener("click", resetState);
 
 resetState();

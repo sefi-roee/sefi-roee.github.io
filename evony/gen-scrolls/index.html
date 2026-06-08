@@ -23,7 +23,7 @@
 		<section class="card p-3 p-md-4 mb-3 scroll-card">
 			<div class="row g-3 align-items-end">
 				<div class="col-md-4">
-					<label for="scrollProbability" class="form-label">Sucess Prob (%)</label>
+					<label for="scrollProbability" class="form-label">Success Probability (per scroll) %</label>
 					<input id="scrollProbability" type="number" min="0" max="100" step="0.01" class="form-control" value="14.81">
 				</div>
 				<div class="col-md-4">
@@ -39,8 +39,15 @@
 				</div>
 			</div>
 
+			<div class="preset-strip mt-4">
+				<div class="preset-strip__label">Presets</div>
+				<div class="preset-strip__buttons">
+					<button id="presetPremiumBtn" class="btn btn-primary preset-btn" type="button">Epic Historic General (Premium)</button>
+					<button id="presetRegularBtn" class="btn btn-outline-secondary preset-btn" type="button">Epic Historic General</button>
+				</div>
+			</div>
+
 			<div class="d-flex flex-wrap gap-2 mt-4">
-				<button id="exampleBtn" class="btn btn-primary">Load Example</button>
 				<button id="resetBtn" class="btn btn-outline-secondary">Reset</button>
 			</div>
 		</section>

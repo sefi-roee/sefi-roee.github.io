@@ -52,6 +52,40 @@ body {
 	color: #805c15;
 }
 
+.preset-strip {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.9rem 1rem;
+	border: 1px solid #dde7f2;
+	border-radius: 14px;
+	background: linear-gradient(180deg, #fcfdff, #f5f9fd);
+}
+
+.preset-strip__label {
+	font-size: 0.82rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #526274;
+	white-space: nowrap;
+}
+
+.preset-strip__buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem;
+	justify-content: flex-end;
+}
+
+.preset-btn {
+	font-weight: 600;
+	border-radius: 999px;
+	padding-left: 0.95rem;
+	padding-right: 0.95rem;
+}
+
 .linked-head {
 	display: flex;
 	justify-content: space-between;
@@ -272,6 +306,7 @@ body {
 @media (max-width: 860px) {
 	.linked-head,
 	.viz-head,
+	.preset-strip,
 	.control-block__top {
 		flex-direction: column;
 		align-items: stretch;

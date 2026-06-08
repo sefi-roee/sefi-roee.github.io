@@ -20,7 +20,6 @@ const elements = {
 	repetitionsDetail: document.getElementById("repetitionsDetail"),
 	expectedValue: document.getElementById("expectedValue"),
 	summaryLine: document.getElementById("summaryLine"),
-	formulaGeneral: document.getElementById("formulaGeneral"),
 	formulaCurrent: document.getElementById("formulaCurrent"),
 	formulaDetail: document.getElementById("formulaDetail"),
 	probabilityChart: document.getElementById("probabilityChart"),
@@ -157,12 +156,8 @@ function updateRepetitionRangeMax(currentRepetitions) {
 	elements.repetitionsNumber.max = String(MAX_REPETITIONS);
 }
 
-function renderFormula(generalFormula, currentFormula) {
+function renderFormula(currentFormula) {
 	if (window.katex) {
-		window.katex.render(generalFormula, elements.formulaGeneral, {
-			throwOnError: false,
-			displayMode: true
-		});
 		window.katex.render(currentFormula, elements.formulaCurrent, {
 			throwOnError: false,
 			displayMode: true
@@ -170,7 +165,6 @@ function renderFormula(generalFormula, currentFormula) {
 		return;
 	}
 
-	elements.formulaGeneral.textContent = generalFormula;
 	elements.formulaCurrent.textContent = currentFormula;
 }
 
@@ -239,9 +233,8 @@ function renderFormulaSection(selectedProbability) {
 	const p = state.probabilityPerScroll;
 	const n = state.repetitions;
 	const k = state.targetSuccesses;
-	const generalFormula = String.raw`P(X \ge k)=1-\sum_{i=0}^{k-1} \binom{n}{i} p^i (1-p)^{n-i},\quad X \sim \mathrm{Binomial}(n,p)`;
 	const currentFormula = String.raw`P(X \ge ${k})=1-\sum_{i=0}^{${Math.max(k - 1, 0)}} \binom{${n}}{i} (${p.toFixed(4)})^i (${(1 - p).toFixed(4)})^{${n}-i}=${selectedProbability.toFixed(6)}`;
-	renderFormula(generalFormula, currentFormula);
+	renderFormula(currentFormula);
 	elements.formulaDetail.textContent = `Here, n = ${n} attempts, p = ${formatPercent(p)} per scroll, and the target is at least ${k} success${k === 1 ? "" : "es"}.`;
 }
 

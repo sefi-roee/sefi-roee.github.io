@@ -52,7 +52,6 @@ const CIVILIZATIONS = [
 ];
 
 let targetInputs = [];
-let lastUpdatedSlider = null; // Track which slider was last updated to prevent loops
 
 function buildTreasurePlaceholder(civ) {
 	const iconMap = {
@@ -501,24 +500,20 @@ function handleReverseChestsChange() {
 		probSlider.value = 99.99;
 		document.getElementById("reverseProbValue").textContent = "99.99";
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ 100% (no targets set)</span>';
-		lastUpdatedSlider = null;
 		return;
 	}
 
 	if (chests < totalTarget) {
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-warning">Chests must be ≥ ' + totalTarget + ' (total target)</span>';
-		lastUpdatedSlider = null;
 		return;
 	}
 
-	lastUpdatedSlider = "chests";
 	const evaluate = buildEvaluator("approx", targets);
 	const probability = evaluate(chests);
 	
 	probSlider.value = (probability * 100).toFixed(2);
 	document.getElementById("reverseProbValue").textContent = (probability * 100).toFixed(2);
 	document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ Probability calculated</span>';
-	lastUpdatedSlider = null;
 }
 
 function handleReverseProbChange() {
@@ -534,11 +529,8 @@ function handleReverseProbChange() {
 		chestsSlider.value = 0;
 		document.getElementById("reverseChestsValue").textContent = "0";
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ 0 chests (no targets set)</span>';
-		lastUpdatedSlider = null;
 		return;
 	}
-
-	lastUpdatedSlider = "prob";
 	
 	const evaluate = buildEvaluator("approx", targets);
 	let low = totalTarget;
@@ -554,7 +546,6 @@ function handleReverseProbChange() {
 
 	if (highProb < targetProb) {
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-warning">No solution in range for this probability</span>';
-		lastUpdatedSlider = null;
 		return;
 	}
 
@@ -572,23 +563,22 @@ function handleReverseProbChange() {
 	chestsSlider.value = low;
 	document.getElementById("reverseChestsValue").textContent = low;
 	document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ Minimum chests calculated</span>';
-	lastUpdatedSlider = null;
 }
 
 function initReverseCalculator() {
 	const chestsSlider = document.getElementById("reverseChestsSlider");
 	const probSlider = document.getElementById("reverseProbSlider");
 	
-	chestsSlider.addEventListener("input", () => {
-		document.getElementById("reverseChestsValue").textContent = chestsSlider.value;
-		if (lastUpdatedSlider !== "prob") {
+	chestsSlider.addEventListener("input", (e) => {
+		if (e.isTrusted) { // Only handle user input, not programmatic changes
+			document.getElementById("reverseChestsValue").textContent = chestsSlider.value;
 			handleReverseChestsChange();
 		}
 	});
 
-	probSlider.addEventListener("input", () => {
-		document.getElementById("reverseProbValue").textContent = parseFloat(probSlider.value).toFixed(2);
-		if (lastUpdatedSlider !== "chests") {
+	probSlider.addEventListener("input", (e) => {
+		if (e.isTrusted) { // Only handle user input, not programmatic changes
+			document.getElementById("reverseProbValue").textContent = parseFloat(probSlider.value).toFixed(2);
 			handleReverseProbChange();
 		}
 	});

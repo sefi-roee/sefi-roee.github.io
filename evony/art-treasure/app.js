@@ -130,6 +130,8 @@ function refreshHint() {
 	const hint = document.getElementById("methodHint");
 	hint.textContent = currentModeHintText(readTargets());
 	refreshRuntimeWarning();
+	// Refresh reverse calculator when targets change
+	handleReverseChestsChange();
 }
 
 function getBinomialPmfArray(trials, categoriesRemaining) {
@@ -438,17 +440,22 @@ function handleReverseChestsChange() {
 	const targets = readTargets();
 	const totalTarget = getTotalTarget(targets);
 	
-	if (totalTarget === 0) {
-		document.getElementById("reverseMessage").innerHTML = '<span class="text-muted">Set your targets first to use reverse calculator.</span>';
-		return;
-	}
-
 	const chestsSlider = document.getElementById("reverseChestsSlider");
 	const probSlider = document.getElementById("reverseProbSlider");
 	const chests = parseInt(chestsSlider.value);
 
+	if (totalTarget === 0) {
+		// With 0 targets, probability is 100% regardless of chests
+		probSlider.value = 99.99;
+		document.getElementById("reverseProbValue").textContent = "99.99";
+		document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ 100% (no targets set)</span>';
+		lastUpdatedSlider = null;
+		return;
+	}
+
 	if (chests < totalTarget) {
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-warning">Chests must be ≥ ' + totalTarget + ' (total target)</span>';
+		lastUpdatedSlider = null;
 		return;
 	}
 
@@ -459,20 +466,25 @@ function handleReverseChestsChange() {
 	probSlider.value = (probability * 100).toFixed(2);
 	document.getElementById("reverseProbValue").textContent = (probability * 100).toFixed(2);
 	document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ Probability calculated</span>';
+	lastUpdatedSlider = null;
 }
 
 function handleReverseProbChange() {
 	const targets = readTargets();
 	const totalTarget = getTotalTarget(targets);
 	
-	if (totalTarget === 0) {
-		document.getElementById("reverseMessage").innerHTML = '<span class="text-muted">Set your targets first to use reverse calculator.</span>';
-		return;
-	}
-
 	const probSlider = document.getElementById("reverseProbSlider");
 	const chestsSlider = document.getElementById("reverseChestsSlider");
 	const targetProb = parseFloat(probSlider.value) / 100;
+
+	if (totalTarget === 0) {
+		// With 0 targets, any chests >= 0 achieves 100% probability
+		chestsSlider.value = 0;
+		document.getElementById("reverseChestsValue").textContent = "0";
+		document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ 0 chests (no targets set)</span>';
+		lastUpdatedSlider = null;
+		return;
+	}
 
 	lastUpdatedSlider = "prob";
 	
@@ -490,6 +502,7 @@ function handleReverseProbChange() {
 
 	if (highProb < targetProb) {
 		document.getElementById("reverseMessage").innerHTML = '<span class="text-warning">No solution in range for this probability</span>';
+		lastUpdatedSlider = null;
 		return;
 	}
 
@@ -507,6 +520,7 @@ function handleReverseProbChange() {
 	chestsSlider.value = low;
 	document.getElementById("reverseChestsValue").textContent = low;
 	document.getElementById("reverseMessage").innerHTML = '<span class="text-success">✓ Minimum chests calculated</span>';
+	lastUpdatedSlider = null;
 }
 
 function initReverseCalculator() {

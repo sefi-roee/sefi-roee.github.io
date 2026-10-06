@@ -102,6 +102,21 @@ body {
   text-decoration: underline;
 }
 
+.reverse-value-display {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f4c81;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.reverse-message {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #f0f9ff;
+  border-left: 3px solid #0284c7;
+}
+
 @media (max-width: 860px) {
   .civ-grid {
     grid-template-columns: repeat(4, minmax(70px, 1fr));
